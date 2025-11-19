@@ -1,0 +1,278 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f4f6f9;
+}
+
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #b91307;
+    color: #fff;
+    transition: all 0.3s;
+    overflow-y: auto;
+}
+
+.sidebar a {
+    color: #fff;
+    text-decoration: none;
+    padding: 15px 20px;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidebar a:hover {
+    /* background: #0906c2; */
+    background: #e9544f;
+    color: #fff;
+}
+
+.sidebar .active,
+.sidebar a.active:hover {
+    background: #f2f1f5;
+    color: #ac0707;
+}
+
+
+/* Hover solo cuando está activo */
+
+.sidebar a.active:hover {
+    background: #f2f1f5;
+    color: #ac0707;
+}
+
+.content {
+    margin-left: 250px;
+    transition: all 0.3s;
+    padding: 0px;
+}
+
+.content-center {
+    transition: all 0.3s;
+    padding: 10px;
+}
+
+.collapsed-sidebar {
+    margin-left: 70px !important;
+}
+
+.sidebar.collapsed {
+    width: 70px;
+}
+
+.sidebar.collapsed a {
+    text-align: center;
+    padding: 15px 0;
+}
+
+.sidebar.collapsed a span {
+    display: none;
+}
+
+
+/* HEADER DE PAGINA */
+
+
+/* .header {
+    background: #b91307;
+    color: #fff;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+} */
+
+.header {
+    background: #b91307;
+    color: #fff;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    position: sticky;
+    z-index: 10;
+}
+
+.header h1 {
+    flex: 1 1 auto;
+    margin: 0 15px;
+    font-size: 1.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.header .icons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+
+/* Botón custom */
+
+.custom-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* Responsive */
+
+@media (max-width: 576px) {
+    .header h1 {
+        font-size: 1rem;
+        margin: 10px 0;
+    }
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .header .icons {
+        margin-top: 5px;
+    }
+}
+
+.card-custom {
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(248, 229, 229, 0.123);
+}
+
+
+/* ESTILOS DE SUBMENU */
+
+.sidebar ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.sidebar .submenu {
+    max-height: 0;
+    /* oculto por defecto */
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    padding-left: 15px;
+}
+
+
+/* Icono del submenú */
+
+.sidebar a.has-submenu i.float-end {
+    transition: transform 0.3s;
+}
+
+
+/* Girar icono cuando se abre */
+
+.sidebar a.has-submenu.open i.float-end {
+    transform: rotate(180deg);
+}
+
+.custom-btn {
+    color: rgb(253, 250, 250);
+    border: 1px solid rgb(245, 239, 239);
+    background-color: rgb(214, 9, 9);
+    /* blanco de fondo */
+}
+
+
+/* Hover: fondo blanco sólido con texto negro */
+
+.custom-btn:hover {
+    background-color: rgb(247, 241, 241);
+    /* fondo negro */
+    border: 1px solid rgb(245, 239, 239);
+    color: rgb(224, 10, 10);
+    /* texto blanco */
+}
+
+.btn-recordar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 2px solid #0d6efd;
+    /* azul Bootstrap */
+    background-color: transparent;
+    color: #0d6efd;
+    font-size: 24px;
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-recordar:hover {
+    background-color: #0d6efd;
+    color: #fff;
+    transform: scale(1.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-recordar:active {
+    transform: scale(0.95);
+}
+
+.tooltip-inner {
+    color: #fff;
+    /* color del texto */
+    background-color: #b91307;
+    /* fondo blanco */
+    border: 1px solid rgb(243, 239, 239);
+    /* borde rojo */
+}
+
+.tooltip.bs-tooltip-top .tooltip-arrow::before {
+    border-top-color: rgb(247, 241, 241);
+    /* color de la flechita hacia arriba */
+}
+
+.tooltip.bs-tooltip-bottom .tooltip-arrow::before {
+    border-bottom-color: red;
+}
+
+.tooltip.bs-tooltip-start .tooltip-arrow::before {
+    border-left-color: red;
+}
+
+.tooltip.bs-tooltip-end .tooltip-arrow::before {
+    border-right-color: red;
+}
+
+.sidebar .submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    padding-left: 15px;
+}
+
+.sidebar .submenu.open {
+    max-height: 500px;
+}
+
+.sidebar a.has-submenu.open i.float-end {
+    transform: rotate(180deg);
+}
+
+
+.notif-bell {
+    position: relative;
+    display: inline-block;
+}
+.notif-badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    font-size: 0.7rem;
+    padding: 4px 6px;
+}

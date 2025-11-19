@@ -1,0 +1,47 @@
+<?php 
+include_once '../../models/FuncionesGenerales.php';
+include_once '../../config/config.php';
+date_default_timezone_set('America/Guatemala');
+$generales = new FuncionesGenerales();
+$current = basename($_SERVER['PHP_SELF']);
+include_once 'header_dash.php'; 
+$fechaActual = date('Y-m-d H:i:s');
+
+echo '<script>var tooglepass = true;</script>';
+?>
+
+<body>
+
+    <?php   
+        include_once 'siderbar_lateral.php'; 
+        
+    ?>
+
+    <!-- Contenido -->
+    <div class="content" id="content">
+        
+        <?php   
+            include_once 'header_bar.php'; 
+        ?>
+
+        <!-- Dashboard Content -->
+        <div class="content-center" id="content-center">
+            <!-- Dashboard Content -->
+            <div class="container-fluid mt-4">                
+                <?php   
+                    include_once 'dash_cambiar_password.php'; 
+                ?>
+            </div>
+        </div>
+    </div>
+
+    <?php   
+        include_once 'script_dash.php';
+        
+        $generales->ObtenerScriptWeb(10);
+    ?>
+    
+</body>
+
+</html>
+

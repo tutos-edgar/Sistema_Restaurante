@@ -1,0 +1,114 @@
+/* ESTILO PARA EL LOGIN */
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: linear-gradient(135deg, #053068, #af0e09, #053068);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    align-items: center;
+    /* align-items: flex-start; */
+    /* cambia de center a flex-start */
+    padding: 20px;
+    /* opcional, para que no quede pegado al borde */
+    overflow-y: auto;
+    /* permite scroll vertical */
+}
+
+.login-card {
+    /* background: #fcbfbf; */
+    background: #fff;
+    /* background: linear-gradient(135deg, #af0e09, #ec1f04); */
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    animation: fadeInUp 0.8s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translateY(40px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.form-control:focus {
+    border-color: #b80c0c;
+    box-shadow: 0 0 5px rgba(108, 99, 255, 0.5);
+}
+
+.btn-custom {
+    background: #1a4f96;
+    border: none;
+    border-radius: 50px;
+    transition: 0.3s;
+}
+
+.btn-custom:hover {
+    background: #574fd6;
+    transform: translateY(-2px);
+}
+
+.google-btn {
+    border-radius: 50px;
+    font-weight: 500;
+}
+
+
+/* ESTILO PARA FORMULARIO REGISTRO */
+
+.register-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+    width: 100%;
+    max-width: 500px;
+    animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.form-control:focus {
+    border-color: #764ba2;
+    box-shadow: 0 0 5px rgba(118, 75, 162, 0.5);
+}
+
+.btn-custom {
+    background: #764ba2;
+    border: none;
+    border-radius: 50px;
+    transition: 0.3s;
+}
+
+.btn-custom:hover {
+    background: #5b3b8a;
+    transform: translateY(-2px);
+}
+
+.google-btn {
+    border-radius: 50px;
+    font-weight: 500;
+}

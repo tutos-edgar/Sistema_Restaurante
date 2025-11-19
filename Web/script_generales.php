@@ -1,0 +1,13 @@
+    <!-- Modal de carga -->
+    <div id="loadingModal">
+        <div class="spinner"></div>
+    </div>
+
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- AJAX JQUERY -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="js/funciones_generales.js"></script>
+
+
