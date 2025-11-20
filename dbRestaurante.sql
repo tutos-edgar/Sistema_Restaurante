@@ -1,20 +1,20 @@
-CREATE DATABASE dbYoutubeUser;
-CREATE DATABASE db_YoutubeUser;
-USE dbYoutubeUser;
+-- Crear BD
+CREATE DATABASE IF NOT EXISTS restaurante_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE restaurante_db;
 
 
-CREATE TABLE  roles_usuarios (
-    id_rol INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_rol VARCHAR(255) NOT NULL UNIQUE,
-    es_activo BOOLEAN DEFAULT TRUE,
-    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-   
+-- Restaurantes (config general)
+CREATE TABLE restaurante (
+  id_restaurante INT AUTO_INCREMENT PRIMARY KEY,
+  nombre_restaurante VARCHAR(200) NOT NULL,
+  direccion_restaurante VARCHAR(255),
+  telefono_restaurante VARCHAR(50),
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-INSERT INTO roles_usuarios(nombre_rol) VALUES('USUARIO');
-INSERT INTO roles_usuarios(nombre_rol) VALUES('ADMINISTRADOR');
 
+-- Parametros Generales
 CREATE TABLE parametros(
     id_parametro INT AUTO_INCREMENT PRIMARY KEY,
     nombre_parametro VARCHAR(200),
@@ -35,47 +35,64 @@ INSERT INTO parametros (nombre_parametro, valor_parametro) VALUES('Limites de Re
 INSERT INTO parametros (nombre_parametro, valor_parametro) VALUES('Limites de Registro Canales', '1');
 
 
--- DROP TABLE usuarios_youtube;
--- ALTER TABLE usuarios_youtube  COLUMN ADD   token_acceso VARCHAR(500) DEFAULT '';
-CREATE TABLE  usuarios_youtube (
-    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_usuario VARCHAR(200) NOT NULL,
-    apellido_usuario VARCHAR(200) NOT NULL,
-    email_usuario VARCHAR(200) NOT NULL UNIQUE,
-    alias_usuario VARCHAR(200) NOT NULL UNIQUE,
-    pass_usuario VARCHAR(200) NOT NULL,
-    token_acceso VARCHAR(500) DEFAULT '',
+
+-- Roles
+CREATE TABLE  roles_usuarios (
+    id_rol INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_rol VARCHAR(255) NOT NULL UNIQUE,
     es_activo BOOLEAN DEFAULT TRUE,
-    id_rol INT DEFAULT 1,
-    terminos BOOLEAN DEFAULT TRUE,
-    intento_login INT DEFAULT 0,
-    estado_usuario INT DEFAULT 1,
-    fecha_cambio_estado DATETIME,
-    tipo_usuario VARCHAR(50) DEFAULT 'NORMAL',
-    ultimo_acceso DATETIME,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    
-    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_rol) REFERENCES roles_usuarios(id_rol) ON DELETE CASCADE
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP   
 );
 
--- ALTER TABLE usuarios_youtube ADD COLUMN  tipo_usuario VARCHAR(50) DEFAULT 'NORMAL';
+INSERT INTO roles_usuarios(nombre_rol) VALUES('USUARIO');
+INSERT INTO roles_usuarios(nombre_rol) VALUES('ADMINISTRADOR');
+
+
+-- Usuarios (personal - mesero, cajero, admin)
+CREATE TABLE usuarios (
+  id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+  alias VARCHAR(150) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  palabra_recuperacion VARCHAR(255),
+  pregunata_seguridad VARCHAR(255),
+  respuesta_seguridad VARCHAR(255),
+  idrol INT NOT NULL,
+  activo TINYINT(1) DEFAULT 1,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (id_rol) REFERENCES roles_usuarios(id_rol)
+);
+
+CREATE TABLE estados_perfil_usuario (
+    id_estado_perfil INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_estado VARCHAR(100) NOT NULL UNIQUE,
+    descripcion_estado VARCHAR(255),
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
 -- Tabla de perfiles de usuario
 CREATE TABLE perfiles_usuarios (
     id_perfil_usuario INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NOT NULL,
+    documento VARCHAR(100) UNIQUE,
     nombre_perfil VARCHAR(200),
     apellido_perfil VARCHAR(200),
     email_perfil VARCHAR(200),
     foto_perfil VARCHAR(255),
+    nit VARCHAR(50) UNIQUE,
     bio_perfil TEXT,
     fecha_nacimiento DATE,
     happy_birthday DATE,
+    id_estado_perfil INT DEFAULT 1,
     token_recuperacion VARCHAR(500) DEFAULT '',
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_usuario) REFERENCES usuarios_youtube(id_usuario) ON DELETE CASCADE
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
+    FOREIGN KEY (id_estado_perfil) REFERENCES estados_perfil_usuario(id_estado_perfil)
 );
+
 
 CREATE TABLE  token_recuperacion (
     id_token INT AUTO_INCREMENT PRIMARY KEY,
@@ -89,68 +106,167 @@ CREATE TABLE  token_recuperacion (
 );
 
 
-CREATE TABLE  canales_youtube (
-    id_canal_youtube INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT,
-    nombre_canal VARCHAR(300) NOT NULL,
-    url_canal VARCHAR(500) NOT NULL UNIQUE,
-    idcanal VARCHAR(255) NOT NULL UNIQUE,
-    descripcion_canal TEXT,
-    suscriptores_count INT DEFAULT 0,
-    vistas INT DEFAULT 0,
-    es_activo BOOLEAN DEFAULT TRUE,
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,    
-    FOREIGN KEY (id_usuario) REFERENCES usuarios_youtube(id_usuario) ON DELETE CASCADE
+CREATE TABLE  sesiones_usuarios (
+    id_sesion INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario VARCHAR(255) NOT NULL,
+    token_sesion VARCHAR(255) NOT NULL UNIQUE,
+    ip_usuario VARCHAR(255) NOT NULL UNIQUE,
+    estadosesion VARCHAR(255) NOT NULL ,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- ALTER TABLE canales_youtube 
--- CHANGE suscritores_count suscriptores_count INT DEFAULT 0;
-CREATE TABLE  videos_youtube (
-    id_video INT AUTO_INCREMENT PRIMARY KEY,
-    id_canal_youtube INT NOT NULL,
-    titulo_video VARCHAR(300) NOT NULL,
-    descripcion_video VARCHAR(500) ,
-    url_video VARCHAR(500) NOT NULL,
-    tiempo_duracion VARCHAR(100) NOT NULL,
-    idvideo VARCHAR(255) NOT NULL UNIQUE,
-    vistas INT DEFAULT 0,
-    comentarios INT DEFAULT 0,
-    likes INT DEFAULT 0,
-    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_canal_youtube) REFERENCES canales_youtube(id_canal_youtube) ON DELETE CASCADE
-); 
 
--- RENAME TABLE videos_yotube TO videos_youtube;
-CREATE TABLE short_youtube (
-    id_video INT AUTO_INCREMENT PRIMARY KEY,
-    id_canal_youtube INT,
-    titulo_video VARCHAR(300) NOT NULL,
-    descripcion_video VARCHAR(500) ,
-    url_video VARCHAR(500) NOT NULL,
-    tiempo_duracion VARCHAR(100) NOT NULL,
-    idvideo VARCHAR(255) NOT NULL UNIQUE,
-    vistas INT DEFAULT 0,
-    comentarios INT DEFAULT 0,
-    likes INT DEFAULT 0,
-    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_canal_youtube) REFERENCES canales_youtube(id_canal_youtube) ON DELETE CASCADE
-); 
-
-CREATE TABLE IF NOT EXISTS deudas_vistas_usuario (
-    id_deuda_vista_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    usuario_deudor INT UNIQUE,
-    usuario_acreedor INT,
-    cantidad_deuda INT,
-    tipo_video ENUM('video', 'short') NOT NULL,   
-    estado_deuda VARCHAR(50) NOT NULL, 
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_deudor) REFERENCES usuarios_youtube(id_usuario) ON DELETE CASCADE,
-    FOREIGN KEY (usuario_acreedor) REFERENCES usuarios_youtube(id_usuario) ON DELETE CASCADE
+-- Categorias de platillos
+CREATE TABLE categorias (
+    id_categorias INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_categoria VARCHAR(120) NOT NULL,
+    descripcion_categoria VARCHAR(255),
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- Platillos
+CREATE TABLE platillos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  categoria_id INT,
+  nombre VARCHAR(200) NOT NULL,
+  descripcion TEXT,
+  activo TINYINT(1) DEFAULT 1,
+  foto VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (categoria_id) REFERENCES categorias(id)
+);
+
+-- Precios por platillo (permite historial o variantes: small/med/large)
+CREATE TABLE platillo_precios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  platillo_id INT NOT NULL,
+  nombre_variant VARCHAR(80) DEFAULT 'Standard', -- eg. Small, Large
+  precio DECIMAL(10,2) NOT NULL,
+  vigente TINYINT(1) DEFAULT 1,
+  desde TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (platillo_id) REFERENCES platillos(id)
+);
+
+-- Adicionales (ej: extra queso, extra salsa)
+CREATE TABLE adicionales (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(120) NOT NULL,
+  precio DECIMAL(10,2) DEFAULT 0.00,
+  activo TINYINT(1) DEFAULT 1
+);
+
+-- Mesas
+CREATE TABLE mesas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  codigo VARCHAR(80) UNIQUE, -- por ejemplo "MESA-1" o token visible
+  nombre VARCHAR(100),
+  estado VARCHAR(50) DEFAULT 'Libre', -- Libre, Ocupada, EnCobro, Cerrada
+  token_qr VARCHAR(255) UNIQUE,
+  capacidad INT DEFAULT 4
+);
+
+-- Clientes
+CREATE TABLE clientes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(150),
+  telefono VARCHAR(50),
+  email VARCHAR(150),
+  registrado TINYINT(1) DEFAULT 0,
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Pedidos
+CREATE TABLE pedidos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  mesa_id INT NULL,
+  cliente_id INT NULL,
+  usuario_id INT NULL, -- quien creó/atendió (mesero/cajero)
+  tipo ENUM('Estandar','Llevar','Domicilio','QR') DEFAULT 'Estandar',
+  total DECIMAL(12,2) DEFAULT 0.00,
+  estado ENUM('Nuevo','EnPreparacion','Listo','Servido','CuentaSolicitada','Pagado','Cancelado') DEFAULT 'Nuevo',
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  qr_token VARCHAR(255) NULL,
+  notas TEXT,
+  FOREIGN KEY (mesa_id) REFERENCES mesas(id),
+  FOREIGN KEY (cliente_id) REFERENCES clientes(id),
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+-- Detalle de pedido (items)
+CREATE TABLE pedido_items (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  pedido_id INT NOT NULL,
+  platillo_id INT NOT NULL,
+  platillo_precio_id INT NULL,
+  nombre_snapshot VARCHAR(200) NOT NULL, -- nombre del platillo al momento
+  precio_unit DECIMAL(10,2) NOT NULL,
+  cantidad INT DEFAULT 1,
+  subtotal DECIMAL(12,2) NOT NULL,
+  estado_item ENUM('Pedido','EnCocina','Listo','Servido','Cancelado') DEFAULT 'Pedido',
+  notas VARCHAR(255),
+  FOREIGN KEY (pedido_id) REFERENCES pedidos(id),
+  FOREIGN KEY (platillo_id) REFERENCES platillos(id),
+  FOREIGN KEY (platillo_precio_id) REFERENCES platillo_precios(id)
+);
+
+-- Relación adicionales aplicados a items (adicionales por item)
+CREATE TABLE pedido_item_adicionales (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  pedido_item_id INT NOT NULL,
+  adicional_id INT NOT NULL,
+  nombre_snapshot VARCHAR(120),
+  precio DECIMAL(10,2) DEFAULT 0.00,
+  FOREIGN KEY (pedido_item_id) REFERENCES pedido_items(id),
+  FOREIGN KEY (adicional_id) REFERENCES adicionales(id)
+);
+
+-- Tipos de pago
+CREATE TABLE tipo_pago (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(80) NOT NULL,
+  descripcion VARCHAR(255)
+);
+
+-- Pagos (un pedido puede tener N pagos)
+CREATE TABLE pagos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  pedido_id INT NOT NULL,
+  tipo_pago_id INT NOT NULL,
+  monto DECIMAL(12,2) NOT NULL,
+  referencia VARCHAR(255) NULL, -- e.g. autorizacion tarjeta
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (pedido_id) REFERENCES pedidos(id),
+  FOREIGN KEY (tipo_pago_id) REFERENCES tipo_pago(id)
+);
+
+-- Auditoria simple
+CREATE TABLE logs (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT NULL,
+  accion VARCHAR(200),
+  detalles TEXT,
+  creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+-- Índices y datos iniciales
+INSERT INTO roles (nombre, descripcion) VALUES ('Admin','Administrador total'), ('Cajero','Usuario caja'), ('Mesero','Atiende mesas'), ('Cocina','Personal cocina');
+INSERT INTO tipo_pago (nombre, descripcion) VALUES ('Efectivo','Pago en efectivo'), ('Tarjeta','Pago con tarjeta'), ('Transferencia','Transferencia bancaria');
+
+-- Ejemplos datos demo
+INSERT INTO categorias (nombre, descripcion, orden) VALUES ('Entradas','Entradas y tapas',1), ('Principales','Platos fuertes',2), ('Bebidas','Bebidas frías y calientes',3);
+INSERT INTO platillos (categoria_id,nombre,descripcion,activo) VALUES (1,'Nachos','Nachos con queso',1),(2,'Pollo a la brasa','Con papas',1),(3,'Coca Cola','Lata 330ml',1);
+INSERT INTO platillo_precios (platillo_id, nombre_variant, precio, vigente) VALUES (1,'Standard',6.50,1),(2,'Standard',8.90,1),(3,'Lata',1.50,1);
+INSERT INTO adicionales (nombre,precio) VALUES ('Extra Queso',0.80),('Salsa Picante',0.30);
+
+-- Crear una mesa y token
+INSERT INTO mesas (codigo,nombre,token_qr,estado,capacidad) VALUES ('MESA-1','Mesa 1','token-mesa-1','Libre',4);
+
+
+
+-----------------
 
 
 
@@ -179,48 +295,6 @@ CREATE TABLE IF NOT EXISTS tokens_acceso_sesion (
 
 
 
-CREATE TABLE  sesiones_usuarios (
-    id_sesion INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario VARCHAR(255) NOT NULL,
-    token_sesion VARCHAR(255) NOT NULL UNIQUE,
-    ip_usuario VARCHAR(255) NOT NULL UNIQUE,
-    estadosesion VARCHAR(255) NOT NULL ,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
-
-
-CREATE TABLE IF NOT EXISTS vistas (
-    id_vista INT AUTO_INCREMENT PRIMARY KEY,
-    id_video INT,
-    tipo_video ENUM('video', 'short') NOT NULL,
-    id_usuario_view INT,
-    id_usuario_video INT,
-    fecha_vista TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_video) REFERENCES videos_yotube(id_video) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS visualizaciones_usuarios (
-    id_visualizacion_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    cantidad_visualizacion INT,
-    typo_video ENUM('video', 'short') NOT NULL,
-    id_usuario INT,
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_usuario) REFERENCES usuarios_youtube(id_usuario) ON DELETE CASCADE
-);
-
-
-CREATE TABLE IF NOT EXISTS historial_vistas (
-    id_historial_vista INT AUTO_INCREMENT PRIMARY KEY,
-    id_video INT,
-    tipo_video ENUM('video', 'short') NOT NULL,
-    id_usuariov_view INT,
-    id_usuario_video INT,
-    fecha_vista TIMESTAMP DEFAULT CURRENT_TIMESTAMP,    
-    FOREIGN KEY (id_video) REFERENCES videos_yotube(id_video) ON DELETE CASCADE 
-);
 
 
 -- CREATE INDEX idx_usuario_id ON videos(usuario_id);
