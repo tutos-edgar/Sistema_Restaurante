@@ -5,7 +5,7 @@ class UsuariosController {
     private $modelo;
 
     public function __construct($db) {
-        $this->modelo = new UsuariosYoutube($db);
+        $this->modelo = new Usuarios($db);
     }
 
     public function obtenerTodos() {

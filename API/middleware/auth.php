@@ -19,7 +19,7 @@ class AUTH {
     }
 
 
-    function obtenerToke(){
+    function obtenerToken(){
         return bin2hex(random_bytes(32));
     }
 

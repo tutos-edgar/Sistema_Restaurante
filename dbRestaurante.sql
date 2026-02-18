@@ -1,6 +1,6 @@
 -- Crear BD
-CREATE DATABASE IF NOT EXISTS restaurante_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE restaurante_db;
+CREATE DATABASE IF NOT EXISTS db_restaurante CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE db_restaurante;
 
 
 -- Restaurantes (config general)
@@ -12,6 +12,11 @@ CREATE TABLE restaurante (
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- echo md5($user->getPassword());
+-- 8f289bed9e3793429463a2986f047490 -> 896425
+-- 3a824154b16ed7dab899bf000b80eeee -> 2022
+-- 202cb962ac59075b964b07152d234b70 -> 123
 
 
 -- Parametros Generales
@@ -25,7 +30,6 @@ CREATE TABLE parametros(
 );
 
 -- ALTER TABLE parametros ADD COLUMN es_activo BOOLEAN DEFAULT TRUE;
-
 INSERT INTO parametros (nombre_parametro, valor_parametro) VALUES('Limites de Intentos para iniciar sesion', '5');
 INSERT INTO parametros (nombre_parametro, valor_parametro) VALUES('Cantidad Limite de caracteres para el password', '5');
 INSERT INTO parametros (nombre_parametro, valor_parametro) VALUES('Tiempo de espera cuando la sesion se bloquea por intentos de acceso al login', '5');
@@ -33,7 +37,6 @@ INSERT INTO parametros (nombre_parametro, valor_parametro) VALUES('Limite de Tie
 INSERT INTO parametros (nombre_parametro, valor_parametro) VALUES('Limite de Tiempo Sesion Usuario', '5');
 INSERT INTO parametros (nombre_parametro, valor_parametro) VALUES('Limites de Registro Video', '5');
 INSERT INTO parametros (nombre_parametro, valor_parametro) VALUES('Limites de Registro Canales', '1');
-
 
 
 -- Roles
@@ -45,24 +48,33 @@ CREATE TABLE  roles_usuarios (
     fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP   
 );
 
-INSERT INTO roles_usuarios(nombre_rol) VALUES('USUARIO');
 INSERT INTO roles_usuarios(nombre_rol) VALUES('ADMINISTRADOR');
-
+INSERT INTO roles_usuarios(nombre_rol) VALUES('USUARIO');
 
 -- Usuarios (personal - mesero, cajero, admin)
 CREATE TABLE usuarios (
   id_usuario INT AUTO_INCREMENT PRIMARY KEY,
-  alias VARCHAR(150) NOT NULL,
+  alias VARCHAR(150) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
+  email VARCHAR(200) NOT NULL UNIQUE,
   palabra_recuperacion VARCHAR(255),
-  pregunata_seguridad VARCHAR(255),
+  pregunta_seguridad VARCHAR(255),
   respuesta_seguridad VARCHAR(255),
-  idrol INT NOT NULL,
+  super_usuario BOOLEAN DEFAULT FALSE,
+  id_rol INT NOT NULL,
   activo TINYINT(1) DEFAULT 1,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (id_rol) REFERENCES roles_usuarios(id_rol)
+  FOREIGN KEY (id_rol) REFERENCES roles_usuarios(id_rol) ON DELETE CASCADE
 );
+
+ALTER TABLE usuarios ADD COLUMN email VARCHAR(200) NOT NULL UNIQUE 
+
+INSERT INTO usuarios
+(alias, password_hash, palabra_recuperacion, pregunta_seguridad, respuesta_seguridad, super_usuario, id_rol, activo)
+VALUES
+('edgar86', '8f289bed9e3793429463a2986f047490', 'mi esposa es buena persona', '', '', true, 1)
+
 
 CREATE TABLE estados_perfil_usuario (
     id_estado_perfil INT AUTO_INCREMENT PRIMARY KEY,
@@ -310,59 +322,12 @@ CREATE TABLE IF NOT EXISTS tokens_acceso_sesion (
 
 
 
--- GENERAR TOKEN
-DROP FUNCTION IF EXISTS generar_token;
-DELIMITER $$
-CREATE FUNCTION generar_token(longitud INT) 
-RETURNS VARCHAR(255)
-DETERMINISTIC
-BEGIN
-    DECLARE chars VARCHAR(62) DEFAULT 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    DECLARE token VARCHAR(255) DEFAULT '';
-    DECLARE i INT DEFAULT 0;
 
-    WHILE i < longitud DO
-        SET token = CONCAT(token, SUBSTRING(chars, FLOOR(1 + RAND() * 62), 1));
-        SET i = i + 1;
-    END WHILE;
-
-    RETURN token;
-END$$
-DELIMITER ;
-
-SELECT generar_token(60) AS mi_token;
 
 
     
 
--- INSERTAR PERFIL USUARIO
-DROP TRIGGER IF EXISTS insertar_perfil_usuario;
-DELIMITER $$
-CREATE TRIGGER insertar_perfil_usuario
-AFTER INSERT ON usuarios_youtube
-FOR EACH ROW
-BEGIN
-    DECLARE token_generado VARCHAR(255);
-    DECLARE token_existe INT;
-    -- Verificar si ya existe un registro para el usuario
-    IF NOT EXISTS (
-        SELECT 1 
-        FROM perfiles_usuarios 
-        WHERE id_usuario = NEW.id_usuario
-    ) THEN
-        -- SET token_generado = generar_token(32);
-        REPEAT
-            SET token_generado = generar_token(32);
-            SELECT COUNT(*) INTO token_existe FROM perfiles_usuarios WHERE token_recuperacion = token_generado;
-            UNTIL token_existe = 0
-        END REPEAT;
-        INSERT INTO perfiles_usuarios 
-        (id_usuario, nombre_perfil, apellido_perfil, email_perfil, token_recuperacion)
-        VALUES 
-        (NEW.id_usuario, NEW.nombre_usuario, NEW.apellido_usuario, NEW.email_usuario, token_generado);    
-    END IF;
-END$$
-DELIMITER ;
+
 
 -- ACTUALIZAR EL PERFIL DE USUARIOO
 DROP TRIGGER IF EXISTS actualizar_perfil_usuario;

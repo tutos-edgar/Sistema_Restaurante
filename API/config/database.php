@@ -2,9 +2,9 @@
 
 class Database {
     private $host = "localhost";
-    private $db_name = "db_youtubeuser";
+    private $db_name = "db_restaurante";
     private $username = "root";
-    private $port = "3307";
+    private $port = "3399";
     private $password = "";
     public $conn; 
     public $connExtern;   

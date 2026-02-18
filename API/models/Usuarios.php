@@ -1,7 +1,7 @@
 <?php
 include_once  __DIR__ .'/../config/init_config.php';
 
-class UsuariosYoutube
+class Usuarios
 {
     private $conn;
     private $table = "usuarios_youtube";
@@ -153,7 +153,7 @@ class UsuariosYoutube
         }
     }
 
-    public function ObtenerDatosDelUsuario(UsuariosYoutube $usuario)
+    public function ObtenerDatosDelUsuario(Usuarios $usuario)
     {
         try{
             $query = "SELECT * FROM " . $this->table . " u LEFT JOIN perfiles_usuairos pu ON u.id_usuario=pu.id_usuario WHERE id_usuario= ?";
@@ -252,7 +252,7 @@ class UsuariosYoutube
         
     }
 
-    public function crearUsuario(UsuariosYoutube $usuario)
+    public function crearUsuario(Usuarios $usuario)
     {
         try {
 
@@ -302,7 +302,7 @@ class UsuariosYoutube
 
     }
 
-    public function actualizarUsuario(UsuariosYoutube $usuario)
+    public function actualizarUsuario(Usuarios $usuario)
     {
 
         try {
@@ -353,7 +353,7 @@ class UsuariosYoutube
 
     }
 
-    public function ValidarLoginAcceso(UsuariosYoutube $usuario){
+    public function ValidarLoginAcceso(Usuarios $usuario){
 
         try{
             sleep(1);
@@ -665,7 +665,7 @@ class UsuariosYoutube
 
     }
 
-    public function CambiarPasswordUser(UsuariosYoutube $usuario){
+    public function CambiarPasswordUser(Usuarios $usuario){
         try{
 
             $resultado = $this->validarExistenciausuario($usuario->alias_usuario, $usuario->id_usuario, true);           

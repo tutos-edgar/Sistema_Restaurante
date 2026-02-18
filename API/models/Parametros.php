@@ -21,10 +21,10 @@ class Parametros
             $stmt  = $this->conn->query($query);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            // http_response_code(500);
+            http_response_code(500);
             return ["success" => false, "mensaje" => $this->funcionGeneral->validarCodigoDeError($e->getCode(), $e->getMessage()), "error" => true];
         } catch (Exception $e) {
-            // http_response_code(500);
+            http_response_code(500);
             return ["success" => false, "mensaje" => $this->funcionGeneral->validarCodigoDeError($e->getCode(), $e->getMessage()), "error" => true];
         }
         
@@ -38,8 +38,10 @@ class Parametros
             $stmt->execute([$id]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            http_response_code(500);
             return ["success" => false, "mensaje" => $this->funcionGeneral->validarCodigoDeError($e->getCode(), $e->getMessage()), "error" => true];
         } catch (Exception $e) {
+            http_response_code(500);
             return ["success" => false, "mensaje" => $this->funcionGeneral->validarCodigoDeError($e->getCode(), $e->getMessage()), "error" => true];
         }
     }
