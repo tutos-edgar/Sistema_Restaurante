@@ -1,6 +1,7 @@
 <?php 
-include_once '../../models/FuncionesGenerales.php';
-include_once '../../config/config.php';
+include_once __DIR__ . '/../../API/config/config.php';
+include_once ROOT_PATH . '/../API/models/FuncionesGenerales.php';
+
 $generales = new FuncionesGenerales();
 $current = basename($_SERVER['PHP_SELF']);
 include_once 'header_dash.php'; 

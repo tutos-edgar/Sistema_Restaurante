@@ -19,6 +19,7 @@ define('KEY_SECRET_JWT', 'sistema_restaurante_jwt_secret');
 // define('KEY_API_YOTUBE', "AIzaSyBe5Yf5B41L5cOKczaZKHUyp4jkRfRAxY0");
 define('KEY_API_YOTUBE', "AIzaSyCrzGxQOGfRy9CIJsQiheX1KtFdx7XDhFM");
 
+define('ROOT_PATH', dirname(__DIR__));
 define("ACCESS_TIME", 900); // 15 min
 define("REFRESH_TIME", 604800); // 7 días
 

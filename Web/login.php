@@ -1,64 +1,114 @@
 <?php 
 ob_start();
-include_once '../middleware/cerrarsesiones.php';
-include_once '../config/config.php';
-include_once '../models/FuncionesGenerales.php';
+include_once __DIR__ . '/../API/config/config.php';
+include_once ROOT_PATH. '/../API/middleware/cerrarsesiones.php';
+include_once ROOT_PATH. '/../API/models/FuncionesGenerales.php';
 $generales = new FuncionesGenerales();
-include 'header_form.php'; 
-$generales->ObtenerEstilosWeb(1);
-$generales->ObtenerEstilosWeb(3);
+include 'header.php'; 
+$generales->ObtenerEstilosWeb(0);
+// $generales->ObtenerEstilosWeb(3);
 echo '<script>var apiKey ="'.TOKENWEB.'";</script>'
+
 ?>
 
 
+<style>
+    body {
+            background: url('https://images.unsplash.com/photo-1528605248644-14dd04022da1') no-repeat center center/cover;
+            backdrop-filter: blur(3px);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .bg-overlay {
+            background: rgba(0, 0, 0, 0.6);
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+</style>
+
 <body>
-"
-    <div class="login-card">
-        <div class="text-center mb-4">
-            <i class="bi bi-person-circle display-3 text-primary"></i>
-            <h3 class="mt-2">Bienvenido</h3>
-            <p class="text-muted">Inicia sesión en tu cuenta</p>
-        </div>
 
-        <form id="fromEnvio">
-            <div class="mb-3">
-                <label for="alias" class="form-label">Correo electrónico</label>
-                <input type="text" class="form-control" id="alias" placeholder="user o e-mail" required>
+    <div class="bg-overlay"></div>
+
+    <div class="d-flex justify-content-center align-items-center vh-100">
+        <div class="login-container shadow-lg">
+
+            <div class="text-center mb-4">
+                <i class="bi bi-person-circle display-3 text-danger"></i>
+                <h1 class="login-title mt-2">Bienvenido</h3>
+                    <p class="text-danger">Inicia sesión en tu cuenta</p>
             </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Contraseña</label>
-                <div class="input-group">
-                    <input type="password" class="form-control" id="password" placeholder="********" required>
-                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-            <i class="bi bi-eye"></i>
-          </button>
+
+            <!-- <h2 class="login-title">Restaurante</h2> -->
+
+            <form id="loginForm" action="admin_dashboard/index.php" >
+                <!-- Usuario -->
+                <div class="mb-3 position-relative">
+                    <i class="bi bi-person-fill input-icon"></i>
+                    <input type="text" class="form-control" id="usuario" placeholder="Usuario" required>
                 </div>
-            </div>
 
-            <div class="d-flex justify-content-between mb-3">
-                <!-- <div>
-                    <input type="checkbox" id="remember">
-                    <label for="remember" class="ms-1">Recordarme</label>
-                </div> -->
-                <!-- <a href="recuperar_pass.html" class="text-decoration-none">¿Olvidaste tu contraseña?</a> -->
-            </div>
+                <!-- Contraseña -->
+                <div class="mb-3 position-relative">
+                    <!-- <div class="input-group"> -->
+                    <i class="bi bi-lock-fill input-icon"></i>
+                    <input type="password" class="form-control" id="password" placeholder="Contraseña" required>
+                    <!-- <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <i class="bi bi-eye"></i>
+                        </button> -->
+                    <!-- </div> -->
+                </div>
 
-            <button type="submit" class="btn btn-custom w-100 text-white">Ingresar</button>
-        </form>
+                <!-- Botón -->
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-danger btn-login fw-bold">Ingresar</button>
+                </div>
 
-        <hr class="my-4">
+                <!-- Enlaces -->
+                <div class="text-center mt-3">
+                    <!-- <p class="text-center mt-3">
+                        ¿No tienes cuenta? <a href="registro.php" class="text-decoration-none">Regístrate</a>
+                    </p> -->
+                    <a href="opciones_recuperacion_pass.php">¿Olvidaste tu contraseña?</a>
+                </div>
 
-        <!-- <button class="btn btn-outline-danger google-btn w-100 mb-2">
-            <i class="bi bi-google me-2"></i> Iniciar con Google
-        </button> -->
+            </form>
 
-        <p class="text-center mt-3">
-            ¿No tienes cuenta? <a href="registro.php" class="text-decoration-none">Regístrate</a>
-        </p>
+        </div>
     </div>
 
+
     
-    <?php include 'script_generales.php'; $generales->ObtenerScriptWeb(1);?>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript Propio -->
+    <script>
+        // document.getElementById("loginForm").addEventListener("submit", function(e) {
+        //     e.preventDefault();
+
+        //     let usuario = document.getElementById("usuario").value.trim();
+        //     let password = document.getElementById("password").value.trim();
+
+        //     if (usuario === "" || password === "") {
+        //         alert("Debe completar todos los campos");
+        //         return;
+        //     }
+
+        //     // Simulación
+        //     if (usuario === "admin" && password === "1234") {
+        //         alert("Inicio de sesión exitoso ✔️");
+        //         window.location.href = "index.html"; // Redirige al Home o Panel
+        //     } else {
+        //         alert("Usuario o contraseña incorrectos ❌");
+        //     }
+        // });
+    </script>
+
+    <!-- <?php include 'script_generales.php'; $generales->ObtenerScriptWeb(1);?> -->
     
 
 </body>

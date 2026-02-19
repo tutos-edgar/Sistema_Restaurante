@@ -1,7 +1,7 @@
 <!-- Header -->
  <div class="header">
     <button class="btn btn-outline-dark custom-btn" id="toggleBtn"><i class="bi bi-list"></i></button>
-    <h1>Bienvenido <?php echo $aliasUsuario; ?> </h1>
+    <h1>Bienvenido <?php //echo $aliasUsuario; ?> </h1>
     <div class="icons">
         <!-- <a href="menu_notificaciones_user.php" title="Notificaciones">
             <i class="bi bi-bell-fill fs-5"></i>

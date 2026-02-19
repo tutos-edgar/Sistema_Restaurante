@@ -2,14 +2,14 @@
 <html lang="es">
 
 <?php 
-include_once '../../middleware/validaSesion.php';
+// include_once __DIR__ . '/../../API/middleware/validaSesion.php';
 $generales->ObtenerEstilosWeb(3);
 $current = basename($_SERVER['PHP_SELF']);
-if($current != "menu_generar_vistas.php" && $current != "vista_video.php"){
-    echo '<script>var apiKey ="'.TOKENWEB.'";</script>';
-}
-echo '<script>var IdUser = "'.$IdUser.'";</script>';
-echo '<script>localStorage.setItem("tipoSeleccionado", "");</script>';
+// if($current != "menu_generar_vistas.php" && $current != "vista_video.php"){
+//     echo '<script>var apiKey ="'.TOKENWEB.'";</script>';
+// }
+// echo '<script>var IdUser = "'.$IdUser.'";</script>';
+// echo '<script>localStorage.setItem("tipoSeleccionado", "");</script>';
 
 ?>
 

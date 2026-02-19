@@ -162,3 +162,232 @@ footer {
 #contenido_pedido {
     margin-top: 5%;
 }
+
+
+/* ESTILO FORMULARIO LOGIN */
+
+.bg-overlay {
+    background: rgba(0, 0, 0, 0.6);
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.login-container {
+    max-width: 420px;
+    background: #ffffffdd;
+    padding: 35px;
+    border-radius: 15px;
+    position: relative;
+    z-index: 10;
+    animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #E63946;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-control {
+    padding-left: 40px;
+}
+
+.input-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #E63946;
+}
+
+.btn-login {
+    background-color: #E63946;
+    border: none;
+    border-radius: 50px;
+    transition: 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #c92c38;
+}
+
+a {
+    text-decoration: none;
+    font-size: 14px;
+    color: #E63946;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.btn-custom {
+    background: #b80c0c !important;
+    border: none;
+    border-radius: 50px;
+    transition: 0.3s;
+}
+
+
+/* login carg */
+
+.login-card {
+    /* background: #fcbfbf; */
+    background: #fff;
+    /* background: linear-gradient(135deg, #af0e09, #ec1f04); */
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    animation: fadeInUp 0.8s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        transform: translateY(40px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.form-control:focus {
+    border-color: #b80c0c;
+    box-shadow: 0 0 5px rgba(108, 99, 255, 0.5);
+}
+
+.btn-custom:hover {
+    background: #09ee60;
+    transform: translateY(-2px);
+}
+
+.google-btn {
+    border-radius: 50px;
+    font-weight: 500;
+}
+
+
+/* ESTILO PARA FORMULARIO REGISTRO */
+
+.register-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+    width: 100%;
+    max-width: 500px;
+    animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.form-control:focus {
+    border-color: #764ba2;
+    box-shadow: 0 0 5px rgba(118, 75, 162, 0.5);
+}
+
+.btn-custom {
+    background: #764ba2;
+    border: none;
+    border-radius: 50px;
+    transition: 0.3s;
+}
+
+.btn-custom:hover {
+    background: #5b3b8a;
+    transform: translateY(-2px);
+}
+
+.google-btn {
+    border-radius: 50px;
+    font-weight: 500;
+}
+
+
+/* ESTILO FORMULARIO OPCIONES RECUPERACION CONTRASEÑA */
+
+.container-recuperacion {
+    align-items: center;
+    padding: 40px;
+    border-radius: 15px;
+    position: relative;
+    z-index: 10;
+    animation: fadeIn 0.8s ease;
+}
+
+.card-option {
+    background: #E63946;
+    border-radius: 12px;
+    transition: .3s;
+    cursor: pointer;
+}
+
+.seleccionar {
+    color: #fff;
+}
+
+.card-option:hover {
+    background: #b22222;
+    transform: translateY(-5px);
+}
+
+.hidden {
+    display: none;
+}
+
+.form-box {
+    color: #ffffffdd;
+    background: #b22222;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 450px;
+    margin: auto;
+}
+
+.btn-main {
+    background: #ddc6c8;
+    border: none;
+    color: #c20e0e;
+}
+
+.btn-main:hover {
+    background: #665e5f;
+}
+
+a {
+    color: #b40505;
+    text-decoration: none;
+}
+
+.link-red {
+    color: #fff;
+    text-decoration: none;
+}

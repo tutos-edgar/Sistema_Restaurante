@@ -1,7 +1,8 @@
 <?php 
 ob_start();
-include_once '../middleware/cerrarsesiones.php';
-include_once '../config/init_config.php';
+include_once __DIR__.'/../API/middleware/cerrarsesiones.php';
+include_once __DIR__.'/../API/config/init_config.php';
+
 $generales = new FuncionesGenerales();
 include 'header_form.php'; 
 $generales->ObtenerEstilosWeb(1);

@@ -1,7 +1,7 @@
 <?php
 // Asegúrate de que no haya espacios, líneas en blanco o HTML antes de esto
-header("Location: ../index.php");
-exit; // Siempre usar exit después de header para detener la ejecución
+// header("Location: ../index.php");
+// exit; // Siempre usar exit después de header para detener la ejecución
 ?>
 
 <!DOCTYPE html>
