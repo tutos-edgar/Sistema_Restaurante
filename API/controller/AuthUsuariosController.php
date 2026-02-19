@@ -13,13 +13,11 @@ class AuthUsuariosController implements IAuthUsuario {
         $this->database = new Database();
         $this->db = $this->database->connect();
         $this->modelo = new AuthUsuario($this->db);
-        // $this->modelo = new AuthUsuario($db);
     }
 
     public function validarLogin(Usuarios $usuario) {
         $modelo = $this->modelo->ValidarLoginAcceso($usuario);
-        var_dump($modelo);
-        exit();
+        
         if(!empty($modelo)){
 
             if(isset( $modelo['success']) && $modelo['success'] === true){
@@ -41,7 +39,7 @@ class AuthUsuariosController implements IAuthUsuario {
             
         }
         echo json_encode(["success" => "false", "mensaje" => "No se encontraron Datos", "dato" => []]);
-       
+
     }
 
 

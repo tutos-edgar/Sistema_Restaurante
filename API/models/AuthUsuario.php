@@ -1,6 +1,10 @@
 <?php 
-
+// require_once __DIR__ . '/../config.php';
+require_once '../config/config.php';
 require_once '../models/Usuarios.php';
+require_once '../middleware/AccessJWT.php';
+require_once '../middleware/AccessDB.php';
+require_once '../Interfaces/IGenerarTokens.php';
 
  class AuthUsuario{
 
@@ -10,12 +14,19 @@ require_once '../models/Usuarios.php';
     private $table;
     private $funcionesGenerales;
 
+    private AccessJWT $jwt;
+    private AccessDB $session;
+
     public function __construct($db)
     {
         $this->conn = $db;
         $this->table = "usuarios";
         $this->funcionesGenerales = new FuncionesGenerales(); 
         $this->parametros = new Parametros($db);
+
+        $this->jwt = new AccessJWT();
+        $this->session = new AccessDB($db);
+
        
     }
 
@@ -63,44 +74,52 @@ require_once '../models/Usuarios.php';
                 $tiempoEspera = TIEMPOESPERABLOQUEOSESION;
             }
             
-            // $query = "SELECT * FROM usuarios WHERE alias = ?";
-            // $stmt  = $this->conn->prepare($query);
-            // $stmt->execute([$usuario->alias_usuario]);
-
-            $query = "SELECT *, COALESCE(u.id_usuario, pu.id_usuario) AS id_usuario_final FROM " . $this->table." u LEFT JOIN perfiles_usuarios pu ON u.id_usuario=pu.id_usuario WHERE alias = ?";
+            $query = "SELECT *, COALESCE(u.id_usuario, pu.id_usuario) AS id_usuario_final, u.fecha_cambio_estado AS cambio_estado_usuario FROM " . $this->table." u LEFT JOIN perfiles_usuarios pu ON u.id_usuario=pu.id_usuario WHERE alias = ?";
             $stmt  = $this->conn->prepare($query);
             $stmt->execute([$usuario->alias_usuario]);
             $datos = $stmt->fetch(PDO::FETCH_ASSOC);
-           
+
+            if(!$datos){
+                $query = "SELECT *, COALESCE(u.id_usuario, pu.id_usuario) AS id_usuario_final, u.fecha_cambio_estado AS cambio_estado_usuario FROM " . $this->table." u LEFT JOIN perfiles_usuarios pu ON u.id_usuario=pu.id_usuario WHERE u.email = ?";           
+                $stmt  = $this->conn->prepare($query);
+                $stmt->execute([$usuario->alias_usuario]);
+                $datos = $stmt->fetch(PDO::FETCH_ASSOC);                
+            }
+
             if($datos){
                
-                if($datos["es_activo"]=== false){
+                if($datos["activo"]=== false){
                     return ["success" => false,  "error" => false, "mensaje" => "El Usuario no esta Activo"];
                 }              
 
-                if(($datos['estado_usuario'] != EstadoUsuario::ACTIVO->value && $datos['estado_usuario'] != EstadoUsuario::BLOQUEADO_X_INTENTOS->value) || empty($datos['estado_usuario'])){
-                    return ["success" => "false", "error" => false, "mensaje" => ObtenerEstadoUsuario($datos['estado_usuario'])];
+                if(($datos['id_estado_perfil'] != EstadoUsuario::ACTIVO->value && $datos['id_estado_perfil'] != EstadoUsuario::BLOQUEADO_X_INTENTOS->value) || empty($datos['id_estado_perfil'])){
+                    return ["success" => "false", "error" => false, "mensaje" => ObtenerEstadoUsuario($datos['id_estado_perfil'])];
                 }
-                
-                $intentosActuales = $datos['intento_login'];
-                
-                $fechaEstadoUsuario = $datos['fecha_cambio_estado'];
+
+                $intentosActuales = $datos['intento_login'];                
+                // $fechaEstadoUsuario = $datos['fecha_cambio_estado'];
+                $fechaEstadoUsuario = $datos['cambio_estado_usuario'];
                 
                 if(!empty($fechaEstadoUsuario)){
-                    if($datos['estado_usuario'] == EstadoUsuario::BLOQUEADO_X_INTENTOS->value){
+                       
+                    if($datos['id_estado_perfil'] == EstadoUsuario::BLOQUEADO_X_INTENTOS->value){                        
                         $tiempoAnterior = new DateTime($fechaEstadoUsuario);
                         $horaActual = new DateTime();
                         $diffMinutes = $horaActual->getTimestamp() - $tiempoAnterior->getTimestamp();
                         $diffMinutes = $diffMinutes / 60; // pasa de segundos a minutos
-                        if($intentosActuales >= $valorIntentos){
+                       
+                        if($intentosActuales >= $valorIntentos){                           
                             if ($diffMinutes < $tiempoEspera) {
+                                // return ["success" => "false", "error" => false, "mensaje" => "Usted esta Bloqueado Temporalmente espere ".round($diffMinutes, 2)." Minutos"];
                                 return ["success" => "false", "error" => false, "mensaje" => "Usted esta Bloqueado Temporalmente espere ".$tiempoEspera." Minutos"];
                             }else{
-                                if($datos['estado_usuario'] == EstadoUsuario::BLOQUEADO_X_INTENTOS->value){
-                                    $this->ActualizarEstadoUsuario(EstadoUsuario::ACTIVO->value, $$datos['id_usuario_final']);
-                                 }
-                                $this->actualizarIntentosLogin("0", $$datos[0]['id_usuario_final']);
-                                $valorIntentos = 0;
+                                if($datos['id_estado_perfil'] == EstadoUsuario::BLOQUEADO_X_INTENTOS->value){                                                                 
+                                    $this->ActualizarEstadoPerfil(EstadoUsuario::ACTIVO->value, $datos['id_usuario_final']);
+                                }
+                               
+                                $this->actualizarIntentosLogin("0", $datos['id_usuario_final']);
+                                // $valorIntentos = 0;
+                                $intentosActuales = 0;
                             }
                         }   
                        
@@ -108,12 +127,12 @@ require_once '../models/Usuarios.php';
 
                 }
                 sleep(1);
-                
-                if(password_verify($usuario->pass_usuario, $datos["pass_usuario"])){
+
+                if(password_verify($usuario->pass_usuario, $datos["password_hash"])){
                    if($intentosActuales >= $valorIntentos){
                         return ["success" => "false", "error" => false, "mensaje" => "Ha llegado al Maximo de Itentos Fallido"];
                     }
-                   
+
                     $this->actualizarIntentosLogin("0", $datos['id_usuario_final']);
 
                     // Actualiza el objeto usuario con los datos obtenidos de la base de datos            
@@ -126,8 +145,18 @@ require_once '../models/Usuarios.php';
                         }
                     }
 
-                    // $usuarioToken = new UsuariosYoutube($datos);
-                    $tokenGenerado = $this->CrearTokenUsuario($usuario);                    
+                    // $usuarioJWT = new AccessJWT();
+                    // // $usuario->token_sesion = $usuarioJWT->generarJWT($usuario->id_usuario, $_ENV['KEY_SECRET_JWT']); //Busca en Variables de Entorno del Sistema
+                    // // $usuario->token_sesion = $usuarioJWT->generarJWT($usuario->id_usuario, 'KEY_SECRET_JWT'.$usuario->id_usuario);  //Busca en Constante Definida en Config
+                    // $usuario->token_sesion = $usuarioJWT->GenerarToken($usuario->id_usuario, getenv('KEY_SECRET_JWT').$usuario->id_usuario); //Busca en Variables de Entorno en .htaccess
+    
+                    // $validarToken = $usuarioJWT->validarJWT($usuario->token_sesion, getenv('KEY_SECRET_JWT').$usuario->id_usuario);
+                   
+                    $usuarioJWT = new AccessDB($this->conn);
+                    $usuarioJWT->usuario = $usuario;
+                    $tokenGenerado = $usuarioJWT->GenerarToken($usuario->id_usuario, $this->conn, 1800); 
+                    $tokenDB = $usuarioJWT->GetTokenSesion();
+                                     
                     if($tokenGenerado){
                         if(is_array($tokenGenerado) && array_key_exists('error', $tokenGenerado)){
                             if(isset($resultado['error']) && $resultado['error'] === true){
@@ -135,8 +164,12 @@ require_once '../models/Usuarios.php';
                             }
                         }
 
-                        // $this->crearHistorialLogin($datos);
-                       
+                        $usuarioJWT = new AccessJWT();
+                        // $usuario->token_sesion = $usuarioJWT->generarJWT($usuario->id_usuario, $_ENV['KEY_SECRET_JWT']); //Busca en Variables de Entorno del Sistema
+                        // $usuario->token_sesion = $usuarioJWT->generarJWT($usuario->id_usuario, 'KEY_SECRET_JWT'.$usuario->id_usuario);  //Busca en Constante Definida en Config
+                        $usuario->token_sesion = $usuarioJWT->GenerarToken($usuario->id_usuario, $tokenDB);
+
+                        // $this->crearHistorialLogin($datos);                       
                         // session_start(); 
                         
                         $_SESSION['UsuarioValido'] = [
@@ -150,6 +183,9 @@ require_once '../models/Usuarios.php';
 
                         $envio["success"] = true;
                         $envio["mensaje"] = "Validación Correcta";
+                        $envio["id_rol"] = $usuario->id_rol;
+                        $envio["id_usuario"] = $usuario->id_usuario;
+                        
                         if($datos['id_rol'] == RolesUsuarios::USUARIO->value){
                             $_SESSION['Rol'] = RolesUsuarios::USUARIO->value;                             
                             $envio ["urlPrincipal"]= "admin_user/";
@@ -158,6 +194,14 @@ require_once '../models/Usuarios.php';
                             $envio ["urlPrincipal"]= "admin_dashboard/";
                         }
 
+                        setcookie("access_token", $tokenDB, [
+                            "expires"=>time()+1800,
+                            "path"=>"/",
+                            "secure"=>true,
+                            "httponly"=>true,
+                            "samesite"=>"Strict"
+                        ]);
+                        
                         return $envio;
                        
                     }else{
@@ -165,9 +209,12 @@ require_once '../models/Usuarios.php';
                     }
 
 
-                }else{
+                }else{                   
                     if($intentosActuales >= $valorIntentos){
-                        return ["success" => "false", "error" => false, "mensaje" => "Ha llegado al Maximo de Itentos Fallido"];
+                        if(!empty($this->ActualizarEstadoPerfil(EstadoUsuario::BLOQUEADO_X_INTENTOS->value, $datos['id_usuario_final']))){                            
+                            return ["success" => "false", "error" => false, "mensaje" => "Ha llegado al Maximo de Itentos Fallido"];                      
+                        }
+                        return ["success" => "false", "error" => false, "mensaje" => "Ha llegado al Maximo de Itentos Fallido"]; 
                     }
 
                     $intentosActuales = $intentosActuales + 1;
@@ -178,117 +225,9 @@ require_once '../models/Usuarios.php';
                     return ["success" => false,  "error" => false, "mensaje" => "La Contraseña es Incorrecta"];
                 }
             }else{
-                
-                $query = "SELECT *, COALESCE(u.id_usuario, pu.id_usuario) AS id_usuario_final FROM " . $this->table." u LEFT JOIN perfiles_usuarios pu ON u.id_usuario=pu.id_usuario WHERE u.email = ?";           
-                $stmt  = $this->conn->prepare($query);
-                $stmt->execute([$usuario->alias_usuario]);
-                $datos = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                if($datos){
-                    if($datos["es_activo"]=== false){
-                        return ["success" => false,  "error" => false, "mensaje" => "El Usuario no esta Activo"];
-                    }
-
-                     if($datos["es_activo"]=== false){
-                        return ["success" => false,  "error" => false, "mensaje" => "El Usuario no esta Activo"];
-                    }                  
-
-                    if(($datos['estado_usuario'] != EstadoUsuario::ACTIVO->value && $datos['estado_usuario'] != EstadoUsuario::BLOQUEADO_X_INTENTOS->value) || empty($datos['estado_usuario'])){
-                        return ["success" => "false", "error" => false, "mensaje" => ObtenerEstadoUsuario($datos['estado_usuario'])];
-                    }
-                    
-                    $intentosActuales = $datos['intento_login'];                
-                    $fechaEstadoUsuario = $datos['fecha_cambio_estado'];
-
-                    if(!empty($fechaEstadoUsuario)){
-                        $tiempoAnterior = new DateTime($fechaEstadoUsuario);
-                        $horaActual = new DateTime();
-                        $diffMinutes = $horaActual->getTimestamp() - $tiempoAnterior->getTimestamp();
-                        $diffMinutes = $diffMinutes / 60; // pasa de segundos a minutos
-                        if($intentosActuales >= $valorIntentos){
-                            if ($diffMinutes < $tiempoEspera) {
-                                $datos["success"] = "false";
-                                $datos["error"] = "false";
-                                $datos["mensaje"] = "Usted esta Bloqueado Temporalmente espere ".$tiempoEspera." Minutos";
-                                return $datos;
-                                exit();
-                            }else{
-                                $this->actualizarIntentosLogin("0", $$datos[0]['id_usuario']);
-                                $valorIntentos = 0;
-                            }
-                        }                    
-
-                    }
-                    sleep(1);
-
-                    if(password_verify($usuario->pass_usuario, $datos["pass_usuario"])){
-                        if($intentosActuales >= $valorIntentos){
-                            return ["success" => "false", "error" => false, "mensaje" => "Ha llegado al Maximo de Itentos Fallido"];
-                        }
-                        
-                        $this->actualizarIntentosLogin("0", $datos['id_usuario_final']);
-
-                        foreach ($datos as $key => $value) {
-                            // Solo asigna si la propiedad existe en el objeto
-                            if (property_exists($usuario, $key)) {
-                                $usuario->$key = $value;
-                            }
-                        }
-                   
-                        $tokenGenerado = $this->CrearTokenUsuario($usuario);
-                        if($tokenGenerado){
-
-                            if(is_array($tokenGenerado) && array_key_exists('error', $tokenGenerado)){
-                                if(isset($resultado['error']) && $resultado['error'] === true){
-                                    return ["success" => false, "mensaje" => $resultado['mensaje'], "error" => true];                    
-                                }
-                            }
-                            
-                            // $this->crearHistorialLogin($datos);
-                            // session_start();
-                           $_SESSION['UsuarioValido'] = [
-                            "id_usuario" => $usuario->id_usuario,
-                            "id_rol"     => $usuario->id_rol,
-                            "nombre"     => $usuario->nombre_usuario,
-                            "apellido"     => $usuario->apellido_usuario,
-                            "alias"     => $usuario->alias_usuario
-                            ];
-                            $_SESSION['EstadoSesion'] = true;
-                            
-                            $envio["success"] = true;
-                            $envio["mensaje"] = "Validación Correcta";
-                            if($datos['id_rol'] == RolesUsuarios::USUARIO->value){  
-                                $_SESSION['Rol'] = RolesUsuarios::USUARIO->value;                          
-                                $envio ["urlPrincipal"]= "Web/admin_user/";
-                            }else if($datos['id_rol'] == RolesUsuarios::ADMINISTRADOR->value){
-                                $_SESSION['Rol'] = RolesUsuarios::ADMINISTRADOR->value;
-                                $envio ["urlPrincipal"]= "Web/admin_dashboard/index.php";
-                            }
-
-                            return $envio;
-                        
-                        }else{
-                            return ["success" => "false", "error" => false, "mensaje" => "No se pudo Generar el Token"];
-                        }
-
-
-                    }else{
-                        if($intentosActuales >= $valorIntentos){
-                            return ["success" => "false", "error" => false, "mensaje" => "Ha llegado al Maximo de Itentos Fallido"];
-                        }
-
-                        $intentosActuales = $intentosActuales + 1;
-                        if(!empty($this->actualizarIntentosLogin($intentosActuales, $datos['id_usuario_final']))){
-                            return ["success" => "false", "error" => false, "mensaje" => "Datos Credenciales Invalidos"];                       
-                        }
-
-                        return ["success" => false,  "error" => false, "mensaje" => "La Contraseña es Incorrecta"];
-                    }
-
-                }else{
-                    return ["success" => false,  "error" => false, "mensaje" => "El Alias o Correo son invalidos"];
-                }
+                return ["success" => false,  "error" => false, "mensaje" => "El Usuario ingresado es Invalido"];
             }
+
             
         }catch (PDOException $e) {
             http_response_code(500);
@@ -310,6 +249,26 @@ require_once '../models/Usuarios.php';
             if($stmt->rowCount() > 0){
                  return ["success" => true, "actualizado" => true, "datos" => $stmt->fetch(PDO::FETCH_ASSOC)];
             }else{
+                return ["success" => true, "actualizado" => false, "datos" => []];
+            }
+           
+        }catch (PDOException $e) {    
+            return ["success" => false,  "error" => true, "mensaje" => $this->funcionesGenerales->validarCodigoDeError($e->getCode(), $e->getMessage())];
+        } catch (Exception $e) {           
+            return ["success" => false,  "error" => true, "mensaje" => $this->funcionesGenerales->validarCodigoDeError($e->getCode(), $e->getMessage())];
+        }
+        
+    }
+
+    public function ActualizarEstadoPerfil($estadoUsuario, $id_usuario) {
+        try{
+            $fechaActual = date('Y-m-d H:i:s');           
+            $query = "UPDATE perfiles_usuarios SET id_estado_perfil = ?, fecha_cambio_estado = ? WHERE id_usuario= ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([$estadoUsuario, $fechaActual,  $id_usuario]);
+            if($stmt->rowCount() > 0){
+                 return ["success" => true, "actualizado" => true, "datos" => []];
+            }else{                
                 return ["success" => true, "actualizado" => false, "datos" => []];
             }
            
@@ -358,52 +317,30 @@ require_once '../models/Usuarios.php';
         
     }
 
-    public function CrearTokenUsuario(Usuarios $usuario)
-    {
-        try {
 
-           do {
-                // Generar token aleatorio
-                $token = bin2hex(random_bytes(32)); // 32 caracteres hexadecimales
-                $query = "SELECT COUNT(*) as total FROM tokens_acceso WHERE token_generado = ? AND estado_token = 'A'";
-                $stmt = $this->conn->prepare($query);
-                // Pasar los parámetros como array
-                $stmt->execute([$token]);
-                // Obtener el resultado
-                $existe = $stmt->fetchColumn() > 0;
 
-            } while ($existe);
-           
-            $usuario->token_sesion = $token;
-            $tiempoSesion = TIEMPOEXPIRASESIONLOGIN; // en minutos
-            $fechaVencimiento = date("Y-m-d H:i:s", strtotime("+$tiempoSesion minutes"));
-            
-            $query = "INSERT INTO " . $this->table . " (id_usuario, token_generado, tiempo_duracion, fecha_vence) VALUES (?, ?, ?, ?)";
-            $stmt  = $this->conn->prepare($query);
-            $stmt->execute([                
-                $usuario->id_usuario,
-                $usuario->token_sesion,                             
-                $tiempoSesion,
-                $fechaVencimiento,
-            ]);
-            
-            if ($stmt->rowCount() > 0) {
-                // $this->crearFoto->crearFotos($this->tempRuta, $usuario->foto_usuario, $usuario->nombre_usuario);
-                return ["success" => true];
-            } else {
-                return ["success" => false];
-            }
+    //VALIDACIONES Y CIERRE DE SESIONES
 
-        } catch (PDOException $e) {           
-            return ["success" => false, "error" => "true", "mensaje" => $this->funcionesGenerales->validarCodigoDeError($e->getCode(), $e->getMessage())];
-           
-        } catch (Exception $e) {           
-            return ["success" => false, "error" => "true", "mensaje" => $this->funcionesGenerales->validarCodigoDeError($e->getCode(), $e->getMessage())];
+    public function validarRequest($idUsuario): bool {
+
+
+        $payload = $this->jwt->validarToken($idUsuario);
+
+        $valido = $this->session->validarSesion(
+            $payload['sub'],
+            $payload['token_sesion']
+        );
+
+        if (!$valido) {
+            throw new Exception("Sesión inválida");
         }
 
+        return $valido;
     }
 
-
+    public function logoutDesdeAdmin(int $idUsuario): void {
+        $this->session->cerrarSesionesUsuario($idUsuario);
+    }
 
 
  }

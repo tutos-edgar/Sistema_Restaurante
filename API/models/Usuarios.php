@@ -10,7 +10,7 @@ class Usuarios
     private $parametros;
 
     public $id_usuario, $nombre_usuario, $apellido_usuario, $email_usuario, $alias_usuario, $pass_new, $pass_usuario, $confirm_pass, $id_prefil_usuario, $id_estado_usuario, $id_rol, $terminos;
-    public $tipo_sistema, $ip, $fechaEstadoUsuario, $token_sesion;
+    public $tipo_sistema, $ip, $id_dispositivo, $fechaEstadoUsuario, $token_sesion;
     public $foto_usuario;
 
     private $rutaFotousuario;

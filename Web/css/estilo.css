@@ -1,114 +1,83 @@
-/* ESTILO PARA EL LOGIN */
-
-html,
 body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
+    font-family: 'Poppins', sans-serif;
 }
 
-body {
-    background: linear-gradient(135deg, #053068, #af0e09, #053068);
+
+/* NAVBAR */
+
+.navbar {
+    background: rgba(146, 3, 3, 0.9);
+}
+
+.navbar-brand {
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.nav-link {
+    color: white !important;
+}
+
+
+/* HERO */
+
+.hero {
     height: 100vh;
+    /* background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1550547660-d9450f859349') center/cover no-repeat; */
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1528605248644-14dd04022da1') center/cover no-repeat;
     display: flex;
-    justify-content: center;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     align-items: center;
-    /* align-items: flex-start; */
-    /* cambia de center a flex-start */
-    padding: 20px;
-    /* opcional, para que no quede pegado al borde */
-    overflow-y: auto;
-    /* permite scroll vertical */
+    color: white;
+    text-align: center;
 }
 
-.login-card {
-    /* background: #fcbfbf; */
-    background: #fff;
-    /* background: linear-gradient(135deg, #af0e09, #ec1f04); */
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    padding: 2rem;
-    width: 100%;
-    max-width: 400px;
-    animation: fadeInUp 0.8s ease;
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
 }
 
-@keyframes fadeInUp {
-    from {
-        transform: translateY(40px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-.form-control:focus {
-    border-color: #b80c0c;
-    box-shadow: 0 0 5px rgba(108, 99, 255, 0.5);
-}
-
-.btn-custom {
-    background: #1a4f96;
+.btn-warning {
+    background-color: #ffb703;
     border: none;
-    border-radius: 50px;
-    transition: 0.3s;
+    font-weight: 600;
 }
 
-.btn-custom:hover {
-    background: #574fd6;
-    transform: translateY(-2px);
-}
-
-.google-btn {
-    border-radius: 50px;
-    font-weight: 500;
+.btn-warning:hover {
+    background-color: #fb8500;
 }
 
 
-/* ESTILO PARA FORMULARIO REGISTRO */
+/* CARDS */
 
-.register-card {
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    padding: 2rem;
-    width: 100%;
-    max-width: 500px;
-    animation: fadeIn 0.8s ease;
+.card {
+    border-radius: 15px;
+    overflow: hidden;
+    transition: 0.3s ease;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
 }
 
-.form-control:focus {
-    border-color: #764ba2;
-    box-shadow: 0 0 5px rgba(118, 75, 162, 0.5);
+.price-badge {
+    background: #d62828;
+    font-size: 1rem;
+    padding: 8px 15px;
+    border-radius: 30px;
 }
 
-.btn-custom {
-    background: #764ba2;
-    border: none;
-    border-radius: 50px;
-    transition: 0.3s;
+
+/* CTA SECTION */
+
+.cta {
+    /* background: #111; */
+    background: rgba(146, 3, 3, 0.9);
+    color: white;
+    padding: 60px 0;
 }
 
-.btn-custom:hover {
-    background: #5b3b8a;
-    transform: translateY(-2px);
-}
-
-.google-btn {
-    border-radius: 50px;
-    font-weight: 500;
+footer {
+    /* background: #000; */
+    background: rgba(146, 3, 3, 0.9);
 }

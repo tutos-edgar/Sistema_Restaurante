@@ -18,6 +18,9 @@ CREATE TABLE restaurante (
 -- 3a824154b16ed7dab899bf000b80eeee -> 2022
 -- 202cb962ac59075b964b07152d234b70 -> 123
 
+-- HASH
+-- $2y$10$JCJyzQJfbt9DWXGGTB56Aetc5egAeQms4SRLxZxXKu86EH7hwowCO  -> 896425
+
 
 -- Parametros Generales
 CREATE TABLE parametros(
@@ -61,6 +64,7 @@ CREATE TABLE usuarios (
   pregunta_seguridad VARCHAR(255),
   respuesta_seguridad VARCHAR(255),
   super_usuario BOOLEAN DEFAULT FALSE,
+  intento_login INT DEFAULT 0,
   id_rol INT NOT NULL,
   activo TINYINT(1) DEFAULT 1,
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -69,11 +73,19 @@ CREATE TABLE usuarios (
 );
 
 ALTER TABLE usuarios ADD COLUMN email VARCHAR(200) NOT NULL UNIQUE 
+ALTER TABLE usuarios ADD COLUMN estado_usuario VARCHAR(100) 
+ALTER TABLE usuarios ADD COLUMN intento_login INT DEFAULT 0
+ALTER TABLE usuarios ADD COLUMN fecha_cambio_estado DATETIME; 
 
 INSERT INTO usuarios
 (alias, password_hash, palabra_recuperacion, pregunta_seguridad, respuesta_seguridad, super_usuario, id_rol, activo)
 VALUES
 ('edgar86', '8f289bed9e3793429463a2986f047490', 'mi esposa es buena persona', '', '', true, 1)
+
+INSERT INTO usuarios
+(alias, password_hash, email, super_usuario, id_rol, activo)
+VALUES
+('edgar86', '8f289bed9e3793429463a2986f047490', 'edgar@restaurante.com', true, 1)
 
 
 CREATE TABLE estados_perfil_usuario (
@@ -84,12 +96,17 @@ CREATE TABLE estados_perfil_usuario (
     fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+INSERT INTO estados_perfil_usuario (nombre_estado, descripcion_estado) VALUES ('ACTIVO', 'Perfil de usuario activo y en buen estado');
+INSERT INTO estados_perfil_usuario (nombre_estado, descripcion_estado) VALUES ('INACTIVO', 'Perfil de usuario inactivo o bloqueado');
+INSERT INTO estados_perfil_usuario (nombre_estado, descripcion_estado) VALUES ('SUSPENDIDO', 'Perfil de usuario suspendido temporalmente');
+INSERT INTO estados_perfil_usuario (nombre_estado, descripcion_estado) VALUES ('BLOQUEADO_X_INTENTOS', 'Perfil de usuario bloqueado por exceso de intentos fallidos de acceso');
+
 -- Tabla de perfiles de usuario
 CREATE TABLE perfiles_usuarios (
     id_perfil_usuario INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NOT NULL,
     documento VARCHAR(100) UNIQUE,
-    nombre_perfil VARCHAR(200),
+    nombre_perfil VARCHAR(200), 
     apellido_perfil VARCHAR(200),
     email_perfil VARCHAR(200),
     foto_perfil VARCHAR(255),
@@ -98,6 +115,7 @@ CREATE TABLE perfiles_usuarios (
     fecha_nacimiento DATE,
     happy_birthday DATE,
     id_estado_perfil INT DEFAULT 1,
+    fecha_cambio_estado DATETIME,
     token_recuperacion VARCHAR(500) DEFAULT '',
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -105,6 +123,21 @@ CREATE TABLE perfiles_usuarios (
     FOREIGN KEY (id_estado_perfil) REFERENCES estados_perfil_usuario(id_estado_perfil)
 );
 
+ALTER TABLE perfiles_usuarios ADD COLUMN fecha_cambio_estado DATETIME; 
+
+
+CREATE TABLE  token_sesion (
+    id_token INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    token_generado VARCHAR(800) NOT NULL,
+    tiempo_duracion INT NOT NULL,
+    estado_token VARCHAR(2) DEFAULT 'A',
+    dispositivo VARCHAR(255),
+    id_dispositivo VARCHAR(255),
+    fecha_vence DATETIME,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
 
 CREATE TABLE  token_recuperacion (
     id_token INT AUTO_INCREMENT PRIMARY KEY,

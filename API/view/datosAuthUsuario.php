@@ -3,6 +3,7 @@ header("Content-Type: application/json");
 $data = json_decode(file_get_contents("php://input"), true);
 
 require_once '../models/Usuarios.php';
+require_once '../models/FuncionesGenerales.php';
 require_once '../controller/AuthUsuariosController.php';
 require_once '../config/database.php';
 require_once '../Interfaces/IAuthUsuario.php';
@@ -33,11 +34,14 @@ try{
     $objModelo = new Usuarios($db); 
     $objController = new AuthUsuariosController($db);
     $servicio = new ValidarLoginService($objController);
+    $funcionesGenerales = new FuncionesGenerales();
 
     $objModelo->id_usuario = (isset($datosRecibidos['id_usuario'])) ?  $datosRecibidos['id_usuario'] : '';
     $objModelo->alias_usuario = (isset($datosRecibidos['alias_usuario'])) ?  $datosRecibidos['alias_usuario'] : '';
     $objModelo->pass_usuario = (isset($datosRecibidos['password_usuario'])) ?  $datosRecibidos['password_usuario'] : '';
     $objModelo->id_rol = (isset($datosRecibidos['id_rol'])) ?  $datosRecibidos['id_rol'] : '';
+    $objModelo->tipo_sistema = (isset($datosRecibidos['tipo_sistema'])) ?  $datosRecibidos['tipo_sistema'] : '';    
+    $objModelo->id_dispositivo = (isset($datosRecibidos['id_dispositivo'])) ?  $datosRecibidos['id_dispositivo'] : '';
     
     //CONVERTIR DATOS HTML SCRIPT A TEXTO
     $objModelo->id_usuario = htmlspecialchars($objModelo->id_usuario);
@@ -56,8 +60,13 @@ try{
         }else if(strlen($objModelo->pass_usuario) < 4){
             echo json_encode(["success" => "false", "mensaje" => "La Contraseña debe de ser Mayor o Igual a 4", "error" => "Datos Faltantes", "datos" => []]);
             exit;
-        }
-        
+        }else if(empty($objModelo->id_dispositivo)){
+            $objModelo->id_dispositivo = $funcionesGenerales->obtenerIPCliente();
+            if(empty($objModelo->id_dispositivo)){
+                echo json_encode(["success" => "false", "mensaje" => "Favor de Ingresar un Dispositivo", "error" => "Datos Faltantes", "datos" => []]);
+                exit;
+            }
+        }        
 
     }
     

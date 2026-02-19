@@ -23,7 +23,7 @@ $generales->ObtenerEstilosWeb(0);
     <!-- PROMOCIONES -->
     <section class="py-5 bg-light">
         <div class="container text-center">
-            <h2 class="fw-bold mb-5">🔥 Promociones Especiales</h2>
+            <h2 class="fw-bold mb-5">🔥 Promociones Activas</h2>
 
             <div class="row g-4" id="contenidoPromocion">
                 <div class="col-md-4">
@@ -64,6 +64,46 @@ $generales->ObtenerEstilosWeb(0);
         </div>
     </section>
 
+    <div class="container py-5 text-center">
+        <h2 class="fw-bold mb-5">🔥 Promociones Activas</h2>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card bg-dark text-white shadow">
+                    <div class="card-body">
+                        <h4>Combo Martes</h4>
+                        <p>2 Hamburguesas + Papas + 2 Bebidas</p>
+                        <p class="price_promo">Q60.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card bg-danger text-white shadow">
+                    <div class="card-body">
+                        <h4>Promo Pareja</h4>
+                        <p>2 Dobles + 1 Papas Grande</p>
+                        <p class="price_promo">Q75.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card bg-success text-white shadow">
+                    <div class="card-body">
+                        <h4>Viernes Familiar</h4>
+                        <p>4 Hamburguesas + 2 Papas</p>
+                        <p class="price_promo">Q110.00</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- <a href="pedido-online.html" class="btn btn-warning btn-lg mt-5">
+        Ordenar Ahora -->
+    </a>
+    </div>
+
     <?php 
         include_once 'footer.php';
     ?>
@@ -74,7 +114,6 @@ $generales->ObtenerEstilosWeb(0);
     </script> -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/bootstrap.bundle5.3.2.min.js"></script>
 
 </body>
 

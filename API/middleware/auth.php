@@ -23,6 +23,10 @@ class AUTH {
         return bin2hex(random_bytes(32));
     }
 
+    function obtenerTokenSeguro(){
+        return hash('sha256', bin2hex(random_bytes(32)));
+    }
+
     function llenarEstadoPersonal($nombreID){
         try{
             $conexion = new Database();
