@@ -41,11 +41,12 @@ INSERT INTO parametros (nombre_parametro, valor_parametro) VALUES('Limite de Tie
 INSERT INTO parametros (nombre_parametro, valor_parametro) VALUES('Limites de Registro Video', '5');
 INSERT INTO parametros (nombre_parametro, valor_parametro) VALUES('Limites de Registro Canales', '1');
 
-
+-- TABLAS PARA USUARIOS 
 -- Roles
 CREATE TABLE  roles_usuarios (
     id_rol INT AUTO_INCREMENT PRIMARY KEY,
     nombre_rol VARCHAR(255) NOT NULL UNIQUE,
+    descripcion_rol VARCHAR(500) NOT NULL UNIQUE,
     es_activo BOOLEAN DEFAULT TRUE,
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP   
@@ -109,6 +110,7 @@ CREATE TABLE perfiles_usuarios (
     nombre_perfil VARCHAR(200), 
     apellido_perfil VARCHAR(200),
     email_perfil VARCHAR(200),
+    telefono_perfil VARCHAR(200),
     foto_perfil VARCHAR(255),
     nit VARCHAR(50) UNIQUE,
     bio_perfil TEXT,
@@ -119,7 +121,7 @@ CREATE TABLE perfiles_usuarios (
     token_recuperacion VARCHAR(500) DEFAULT '',
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
+    -- FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) ON DELETE CASCADE,
     FOREIGN KEY (id_estado_perfil) REFERENCES estados_perfil_usuario(id_estado_perfil)
 );
 
@@ -139,33 +141,35 @@ CREATE TABLE  token_sesion (
     fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE  token_recuperacion (
-    id_token INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario VARCHAR(255) NOT NULL,
-    token_recuperacion VARCHAR(255) NOT NULL,
-    id_perfil INT NOT NULL UNIQUE,
-    estado_token VARCHAR(2) DEFAULT 'A',
-    fecha_vence DATETIME,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
 
 
-CREATE TABLE  sesiones_usuarios (
-    id_sesion INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario VARCHAR(255) NOT NULL,
-    token_sesion VARCHAR(255) NOT NULL UNIQUE,
-    ip_usuario VARCHAR(255) NOT NULL UNIQUE,
-    estadosesion VARCHAR(255) NOT NULL ,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
+-- CREATE TABLE  token_recuperacion (
+--     id_token INT AUTO_INCREMENT PRIMARY KEY,
+--     id_usuario VARCHAR(255) NOT NULL,
+--     token_recuperacion VARCHAR(255) NOT NULL,
+--     id_perfil INT NOT NULL UNIQUE,
+--     estado_token VARCHAR(2) DEFAULT 'A',
+--     fecha_vence DATETIME,
+--     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- );
+
+
+-- CREATE TABLE  sesiones_usuarios (
+--     id_sesion INT AUTO_INCREMENT PRIMARY KEY,
+--     id_usuario VARCHAR(255) NOT NULL,
+--     token_sesion VARCHAR(255) NOT NULL UNIQUE,
+--     ip_usuario VARCHAR(255) NOT NULL UNIQUE,
+--     estadosesion VARCHAR(255) NOT NULL ,
+--     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+--     fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- );
 
 
 -- Categorias de platillos
 CREATE TABLE categorias (
     id_categorias INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_categoria VARCHAR(120) NOT NULL,
+    nombre_categoria VARCHAR(120) NOT NULL UNIQUE,
     descripcion_categoria VARCHAR(255),
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -179,8 +183,20 @@ CREATE TABLE platillos (
   descripcion TEXT,
   activo TINYINT(1) DEFAULT 1,
   foto VARCHAR(255),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   FOREIGN KEY (categoria_id) REFERENCES categorias(id)
+);
+
+CREATE TABLE platillo_ingredientes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  platillo_id INT NOT NULL,
+  nombre_ingrediente VARCHAR(120) NOT NULL,
+  cantidad VARCHAR(50),
+  unidad VARCHAR(20),
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  FOREIGN KEY (platillo_id) REFERENCES platillos(id)
 );
 
 -- Precios por platillo (permite historial o variantes: small/med/large)
@@ -191,7 +207,31 @@ CREATE TABLE platillo_precios (
   precio DECIMAL(10,2) NOT NULL,
   vigente TINYINT(1) DEFAULT 1,
   desde TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   FOREIGN KEY (platillo_id) REFERENCES platillos(id)
+);
+
+CREATE TABLE promociones (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre_promocion VARCHAR(120) NOT NULL,
+  descripcion TEXT,
+  tipo_promocion VARCHAR(100), -- e.g. "Descuento", "2x1", "Combo"
+  descuento DECIMAL(5,2) NOT NULL, -- porcentaje de descuento
+  precio_promocional DECIMAL(10,2) NOT NULL,
+  fecha_inicio DATE,
+  fecha_fin DATE,
+  activo TINYINT(1) DEFAULT 1
+  fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE productos_promocion (
+    id_promocion INT NOT NULL,
+    id_producto INT NOT NULL,
+    PRIMARY KEY (id_promocion, id_producto),
+    FOREIGN KEY (id_promocion) REFERENCES promociones(id_promocion),
+    FOREIGN KEY (id_producto) REFERENCES menu(id_producto)
 );
 
 -- Adicionales (ej: extra queso, extra salsa)
