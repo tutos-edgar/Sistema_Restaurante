@@ -15,9 +15,8 @@ define('TIEMPOEXPIRASESIONLOGIN', 30); //MINUTOS
 define('LIMITES_URL_VIDEO', 5);
 define('LIMITES_URL_CANAL', 2);
 define('KEY_SECRET_JWT', 'sistema_restaurante_jwt_secret');
-// define('KEY_API_YOTUBE', "AIzaSyBCogkb0qgaiW_70I9_xZCuteaaVh9eKLI");
-// define('KEY_API_YOTUBE', "AIzaSyBe5Yf5B41L5cOKczaZKHUyp4jkRfRAxY0");
-define('KEY_API_YOTUBE', "AIzaSyCrzGxQOGfRy9CIJsQiheX1KtFdx7XDhFM");
+define('KEY_SECRET_AES', 'sistema_restaurante_aes_tutos-edgar');
+define('KEY_IV', '$i$tem@tut0$3dg@r');
 
 define('ROOT_PATH', dirname(__DIR__));
 define("ACCESS_TIME", 900); // 15 min

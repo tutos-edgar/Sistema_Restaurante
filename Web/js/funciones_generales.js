@@ -1,7 +1,7 @@
 // FUNCIONES PARA EL LOGIN
 // Mostrar / Ocultar contraseña
 
-var urlApi = "http://localhost:8089/dashboard/proyectos/youtube_video_api/view/";
+var urlApi = "http://localhost:5080/dashboard/proyectos/Sistema_Restaurante/API/view/";
 var metodoProceso = "";
 var urlPeticiones = "";
 var idEnvio;
@@ -19,17 +19,17 @@ function scrollToSection(id) {
     });
 }
 
-if (tooglepass) {
-    const togglePassword = document.getElementById('togglePassword');
-    const password = document.getElementById('password');
-    togglePassword.addEventListener('click', () => {
-        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-        password.setAttribute('type', type);
-        togglePassword.innerHTML = type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
-    });
+function togglePasswordVisibility(tooglepass) {
+    if (tooglepass) {
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+        togglePassword.addEventListener('click', () => {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            togglePassword.innerHTML = type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+        });
+    }
 }
-
-
 
 
 function convertirImagenABase64(file) {
@@ -83,6 +83,7 @@ function validarCaracteresEspeciales(texto) {
 
 function showLoading() {
     $("#loadingModal").css("display", "flex");
+    $("#loadingModal").css("z-index", 9999);
 }
 
 function hideLoading() {
@@ -104,4 +105,23 @@ function calcularEdad(fechaNacimiento) {
     }
 
     return edad;
+}
+
+function mostrarError(mensaje) {
+    Swal.fire({
+        icon: 'error',
+        title: mensaje,
+        showConfirmButton: false,
+        timer: tiempoEsperaMensaje
+    });
+}
+
+
+function mostrarWarning(mensaje) {
+    Swal.fire({
+        icon: 'warning',
+        title: mensaje,
+        showConfirmButton: false,
+        timer: tiempoEsperaMensaje
+    });
 }

@@ -90,7 +90,7 @@ try{
                     exit;
                 }  
                 // $objController->ValidarLogin($objModelo);
-                $servicio->ValidarLogin($objModelo);
+                $servicio->ValidarLogin($objModelo);                
                 break;
 
             default:

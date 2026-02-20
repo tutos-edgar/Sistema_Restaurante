@@ -44,11 +44,11 @@ echo '<script>var apiKey ="'.TOKENWEB.'";</script>'
 
             <!-- <h2 class="login-title">Restaurante</h2> -->
 
-            <form id="loginForm" action="admin_dashboard/index.php" >
+            <form id="formEnvio" >
                 <!-- Usuario -->
                 <div class="mb-3 position-relative">
                     <i class="bi bi-person-fill input-icon"></i>
-                    <input type="text" class="form-control" id="usuario" placeholder="Usuario" required>
+                    <input type="text" class="form-control" id="alias" placeholder="Usuario" required>
                 </div>
 
                 <!-- Contraseña -->
@@ -79,36 +79,11 @@ echo '<script>var apiKey ="'.TOKENWEB.'";</script>'
 
         </div>
     </div>
-
-
-    
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- JavaScript Propio -->
-    <script>
-        // document.getElementById("loginForm").addEventListener("submit", function(e) {
-        //     e.preventDefault();
-
-        //     let usuario = document.getElementById("usuario").value.trim();
-        //     let password = document.getElementById("password").value.trim();
-
-        //     if (usuario === "" || password === "") {
-        //         alert("Debe completar todos los campos");
-        //         return;
-        //     }
-
-        //     // Simulación
-        //     if (usuario === "admin" && password === "1234") {
-        //         alert("Inicio de sesión exitoso ✔️");
-        //         window.location.href = "index.html"; // Redirige al Home o Panel
-        //     } else {
-        //         alert("Usuario o contraseña incorrectos ❌");
-        //     }
-        // });
-    </script>
-
-    <!-- <?php include 'script_generales.php'; $generales->ObtenerScriptWeb(1);?> -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <?php 
+        include 'script_generales.php'; 
+        $generales->ObtenerScriptWeb(0);
+    ?>
     
 
 </body>

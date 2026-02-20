@@ -12,4 +12,7 @@
 
 
     <link href="../css/estyle_dashboard.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
 </head>

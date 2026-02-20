@@ -46,7 +46,7 @@ class Database {
             //Devolver en JSON y detener la ejecución
             echo json_encode([
                 "success" => false,
-                "message" => $errorMessage
+                "mensaje" => $errorMessage
             ]);
             exit();
         }
@@ -88,7 +88,7 @@ class Database {
             //Devolver en JSON y detener la ejecución
             echo json_encode([
                 "success" => false,
-                "message" => $errorMessage
+                "mensaje" => $errorMessage
             ]);
             exit();
         }

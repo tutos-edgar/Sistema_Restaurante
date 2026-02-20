@@ -60,13 +60,13 @@ class AccessDB implements IGenerarTokens {
                 return ["success" => false];
             }
 
-        } catch (PDOException $e) {       
+        } catch (PDOException $e) {   
             http_response_code(500);    
-            return ["success" => false, "error" => "true", "mensaje" => $this->funcionesGenerales->validarCodigoDeError($e->getCode(), $e->getMessage())];
+            return ["success" => false, "error" => true, "mensaje" => $this->funcionesGenerales->validarCodigoDeError($e->getCode(), $e->getMessage())];
            
         } catch (Exception $e) {  
             http_response_code(500);         
-            return ["success" => false, "error" => "true", "mensaje" => $this->funcionesGenerales->validarCodigoDeError($e->getCode(), $e->getMessage())];
+            return ["success" => false, "error" => true, "mensaje" => $this->funcionesGenerales->validarCodigoDeError($e->getCode(), $e->getMessage())];
         }
 
     }

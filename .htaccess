@@ -1,1 +1,3 @@
 SetEnv KEY_SECRET_JWT sistema_restaurante_jwt_secret
+SetEnv KEY_SECRET_AES sistema_restaurante_aes_tutos_edgar
+SetEnv KEY_IV $i$tematut0$3dgar

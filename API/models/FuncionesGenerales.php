@@ -636,10 +636,10 @@ class FuncionesGenerales {
 
         switch ($url){
             case 0: 
-                $datoScript = "<script src='ajax/registroUsuario.js'></script>";
+                $datoScript = "<script src='ajax/validarLogin.js'></script>";                
                 break;
             case 1:
-                $datoScript = "<script src='ajax/validarLogin.js'></script>";
+                $datoScript = "<script src='ajax/registroUsuario.js'></script>";
                 break;
             case 2:
                 $datoScript = "<script src='ajax/registroUsuario.js'></script>";

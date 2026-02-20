@@ -1,6 +1,5 @@
 <?php 
 
-require_once '../models/Usuarios.php';
 
   interface IGenerarTokens {
 

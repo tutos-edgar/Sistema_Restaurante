@@ -21,7 +21,20 @@ class AuthUsuariosController implements IAuthUsuario {
         if(!empty($modelo)){
 
             if(isset( $modelo['success']) && $modelo['success'] === true){
-                echo json_encode(["success" => "true", "mensaje" => "Datos Econtrado", "datos" => $modelo]);
+                echo json_encode(["success" => "true", "mensaje" => "Datos Encontrado", "datos" => $modelo]);
+                exit();
+            }
+
+            if(isset( $modelo['success']) && $modelo['success'] === false){
+                if(isset( $modelo['error']) && $modelo['error'] === false){
+                    if(isset( $modelo['mensaje'])){
+                        echo json_encode(["success" => "false", "mensaje" => $modelo['mensaje'], "datos" => []]);
+                        exit();
+                    }
+                    echo json_encode(["success" => "false", "mensaje" => "No se pudo comunicar con el Servidor", "datos" => []]);
+                    exit();
+                }
+                echo json_encode(["success" => "false", "mensaje" => "No se pudo comunicar con el Servidor", "dato" => []]);
                 exit();
             }
 
@@ -35,10 +48,12 @@ class AuthUsuariosController implements IAuthUsuario {
                     exit();
                 }
                 echo json_encode(["success" => "false", "mensaje" => "No se pudo comunicar con el Servidor", "dato" => []]);
+                exit();
             }
             
         }
         echo json_encode(["success" => "false", "mensaje" => "No se encontraron Datos", "dato" => []]);
+        exit();
 
     }
 

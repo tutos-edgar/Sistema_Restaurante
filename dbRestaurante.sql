@@ -46,7 +46,7 @@ INSERT INTO parametros (nombre_parametro, valor_parametro) VALUES('Limites de Re
 CREATE TABLE  roles_usuarios (
     id_rol INT AUTO_INCREMENT PRIMARY KEY,
     nombre_rol VARCHAR(255) NOT NULL UNIQUE,
-    descripcion_rol VARCHAR(500) NOT NULL UNIQUE,
+    descripcion_rol VARCHAR(500) DEFAULT '',
     es_activo BOOLEAN DEFAULT TRUE,
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP   
@@ -58,6 +58,7 @@ INSERT INTO roles_usuarios(nombre_rol) VALUES('USUARIO');
 -- Usuarios (personal - mesero, cajero, admin)
 CREATE TABLE usuarios (
   id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+  id_perfil_usuario INT,
   alias VARCHAR(150) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
   email VARCHAR(200) NOT NULL UNIQUE,
@@ -68,9 +69,12 @@ CREATE TABLE usuarios (
   intento_login INT DEFAULT 0,
   id_rol INT NOT NULL,
   activo TINYINT(1) DEFAULT 1,
+  fecha_cambio_estado DATETIME;
   fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (id_rol) REFERENCES roles_usuarios(id_rol) ON DELETE CASCADE
+  FOREIGN KEY (id_rol) REFERENCES roles_usuarios(id_rol) ON DELETE CASCADE ON UPDATE CASCADE,
+  -- CONSTRAINT fk_usuario_perfil 
+  FOREIGN KEY (id_perfil_usuario) REFERENCES perfiles_usuarios(id_perfil_usuario) ON DELETE RESTRICT
 );
 
 ALTER TABLE usuarios ADD COLUMN email VARCHAR(200) NOT NULL UNIQUE 
@@ -84,9 +88,9 @@ VALUES
 ('edgar86', '8f289bed9e3793429463a2986f047490', 'mi esposa es buena persona', '', '', true, 1)
 
 INSERT INTO usuarios
-(alias, password_hash, email, super_usuario, id_rol, activo)
+(alias, password_hash, email, super_usuario, id_rol)
 VALUES
-('edgar86', '8f289bed9e3793429463a2986f047490', 'edgar@restaurante.com', true, 1)
+('edgar86', '$2y$10$JCJyzQJfbt9DWXGGTB56Aetc5egAeQms4SRLxZxXKu86EH7hwowCO', 'edgar@restaurante.com', true, 1)
 
 
 CREATE TABLE estados_perfil_usuario (
@@ -105,7 +109,7 @@ INSERT INTO estados_perfil_usuario (nombre_estado, descripcion_estado) VALUES ('
 -- Tabla de perfiles de usuario
 CREATE TABLE perfiles_usuarios (
     id_perfil_usuario INT AUTO_INCREMENT PRIMARY KEY,
-    id_usuario INT NOT NULL,
+    -- id_usuario INT NOT NULL,
     documento VARCHAR(100) UNIQUE,
     nombre_perfil VARCHAR(200), 
     apellido_perfil VARCHAR(200),

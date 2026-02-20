@@ -5,6 +5,10 @@ require_once '../models/Usuarios.php';
 require_once '../middleware/AccessJWT.php';
 require_once '../middleware/AccessDB.php';
 require_once '../Interfaces/IGenerarTokens.php';
+require_once '../Interfaces/IGenerarCigrado.php';
+require_once '../cifrado/cifrado_AES.php';
+require_once '../Services/GenerarCifradoService.php';
+require_once '../Services/GenerarTokenService.php';
 
  class AuthUsuario{
 
@@ -39,13 +43,12 @@ require_once '../Interfaces/IGenerarTokens.php';
             $tiempoEspera = 0;
             $valoresParametro =  $this->parametros->buscarParametros(ParametrosTabla::INTENTOS_SESSION->value);
             if($valoresParametro){
-
                 if(is_array($valoresParametro) && array_key_exists('error', $valoresParametro)){
                     if(isset($valoresParametro) && $valoresParametro['error'] == true){
                         if(isset($valoresParametro['mensaje'])){
                             return ["success" => false,  "error" => true, "mensaje" => $valoresParametro['mensaje']];
                         }else{
-                            return ["success" => false,  "error" => true, "mensaje" => "No se pudo comunicar con el servidor"];
+                            return ["success" => false,  "error" => true, "mensaje" => "No se pudo comunicar con el servidor 2"];
                         }
                     }
                 }
@@ -63,7 +66,7 @@ require_once '../Interfaces/IGenerarTokens.php';
                         if(isset($valoresParametro['mensaje'])){
                             return ["success" => false,  "error" => true, "mensaje" => $valoresParametro['mensaje']];
                         }else{
-                            return ["success" => false,  "error" => true, "mensaje" => "No se pudo comunicar con el servidor"];
+                            return ["success" => false,  "error" => true, "mensaje" => "No se pudo comunicar con el servidor4"];
                         }
                     }
                 }                
@@ -73,35 +76,39 @@ require_once '../Interfaces/IGenerarTokens.php';
             }else{
                 $tiempoEspera = TIEMPOESPERABLOQUEOSESION;
             }
-            
-            $query = "SELECT *, COALESCE(u.id_usuario, pu.id_usuario) AS id_usuario_final, u.fecha_cambio_estado AS cambio_estado_usuario FROM " . $this->table." u LEFT JOIN perfiles_usuarios pu ON u.id_usuario=pu.id_usuario WHERE alias = ?";
+
+            // $query = "SELECT *, COALESCE(u.id_usuario, pu.id_usuario) AS id_usuario_final, u.fecha_cambio_estado AS cambio_estado_usuario FROM " . $this->table." u LEFT JOIN perfiles_usuarios pu ON u.id_usuario=pu.id_usuario WHERE alias = ?";
+            $query = "SELECT *, COALESCE(u.id_perfil_usuario, pu.id_perfil_usuario) AS id_usuario_final, u.fecha_cambio_estado AS cambio_estado_usuario FROM " . $this->table ." u LEFT JOIN perfiles_usuarios pu ON u.id_perfil_usuario=pu.id_perfil_usuario WHERE u.alias = ?";
             $stmt  = $this->conn->prepare($query);
             $stmt->execute([$usuario->alias_usuario]);
             $datos = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if(!$datos){
-                $query = "SELECT *, COALESCE(u.id_usuario, pu.id_usuario) AS id_usuario_final, u.fecha_cambio_estado AS cambio_estado_usuario FROM " . $this->table." u LEFT JOIN perfiles_usuarios pu ON u.id_usuario=pu.id_usuario WHERE u.email = ?";           
+                $query = "SELECT *, COALESCE(u.id_perfil_usuario, pu.id_perfil_usuario) AS id_usuario_final, u.fecha_cambio_estado AS cambio_estado_usuario FROM " . $this->table ." u LEFT JOIN perfiles_usuarios pu ON u.id_perfil_usuario=pu.id_perfil_usuario WHERE u.email = ?";
                 $stmt  = $this->conn->prepare($query);
                 $stmt->execute([$usuario->alias_usuario]);
                 $datos = $stmt->fetch(PDO::FETCH_ASSOC);                
             }
 
             if($datos){
-               
+
                 if($datos["activo"]=== false){
                     return ["success" => false,  "error" => false, "mensaje" => "El Usuario no esta Activo"];
                 }              
-
-                if(($datos['id_estado_perfil'] != EstadoUsuario::ACTIVO->value && $datos['id_estado_perfil'] != EstadoUsuario::BLOQUEADO_X_INTENTOS->value) || empty($datos['id_estado_perfil'])){
-                    return ["success" => "false", "error" => false, "mensaje" => ObtenerEstadoUsuario($datos['id_estado_perfil'])];
+                
+                if(!empty($datos['id_estado_perfil'])){
+                    if(($datos['id_estado_perfil'] != EstadoUsuario::ACTIVO->value && $datos['id_estado_perfil'] != EstadoUsuario::BLOQUEADO_X_INTENTOS->value) || empty($datos['id_estado_perfil'])){
+                        return ["success" => "false", "error" => false, "mensaje" => ObtenerEstadoUsuario($datos['id_estado_perfil'])];
+                        exit();
+                    }
                 }
-
+ 
                 $intentosActuales = $datos['intento_login'];                
                 // $fechaEstadoUsuario = $datos['fecha_cambio_estado'];
                 $fechaEstadoUsuario = $datos['cambio_estado_usuario'];
-                
+
                 if(!empty($fechaEstadoUsuario)){
-                       
+                    
                     if($datos['id_estado_perfil'] == EstadoUsuario::BLOQUEADO_X_INTENTOS->value){                        
                         $tiempoAnterior = new DateTime($fechaEstadoUsuario);
                         $horaActual = new DateTime();
@@ -131,9 +138,10 @@ require_once '../Interfaces/IGenerarTokens.php';
                 if(password_verify($usuario->pass_usuario, $datos["password_hash"])){
                    if($intentosActuales >= $valorIntentos){
                         return ["success" => "false", "error" => false, "mensaje" => "Ha llegado al Maximo de Itentos Fallido"];
+                        exit();
                     }
 
-                    $this->actualizarIntentosLogin("0", $datos['id_usuario_final']);
+                    $this->actualizarIntentosLogin("0", $datos['id_usuario']);
 
                     // Actualiza el objeto usuario con los datos obtenidos de la base de datos            
                     //$tokenGenerado = $this->actualizarTokenLogin($usuario->token_sesion,$datos['id_usuario_final']);
@@ -153,8 +161,23 @@ require_once '../Interfaces/IGenerarTokens.php';
                     // $validarToken = $usuarioJWT->validarJWT($usuario->token_sesion, getenv('KEY_SECRET_JWT').$usuario->id_usuario);
                    
                     $usuarioJWT = new AccessDB($this->conn);
+                    $generarToken = new GenerarTokenService($usuarioJWT);
                     $usuarioJWT->usuario = $usuario;
-                    $tokenGenerado = $usuarioJWT->GenerarToken($usuario->id_usuario, $this->conn, 1800); 
+                    $tokenGenerado = $generarToken->GenerarToken($usuario->id_usuario, $this->conn, 1800);                    
+                        if(!empty($tokenGenerado)){
+                            if(isset( $tokenGenerado['success']) && $tokenGenerado['success'] === false){
+                                if(isset($tokenGenerado['error']) && $tokenGenerado['error'] === true){
+                                    if(isset( $tokenGenerado['mensaje'])){
+                                        echo json_encode(["success" => "false", "mensaje" => $tokenGenerado['mensaje'], "datos" => []]);
+                                        exit();
+                                    }
+                                    echo json_encode(["success" => "false", "mensaje" => "No se pudo comunicar con el Servidor", "datos" => []]);
+                                    exit();
+                                }
+                                echo json_encode(["success" => "false", "mensaje" => "No se pudo comunicar con el Servidor", "dato" => []]);
+                                exit();
+                            }
+                        }
                     $tokenDB = $usuarioJWT->GetTokenSesion();
                                      
                     if($tokenGenerado){
@@ -163,28 +186,46 @@ require_once '../Interfaces/IGenerarTokens.php';
                                 return ["success" => false, "mensaje" => $resultado['mensaje'], "error" => true];                    
                             }
                         }
-
+    
                         $usuarioJWT = new AccessJWT();
+                        $generarToken = new GenerarTokenService($usuarioJWT);
                         // $usuario->token_sesion = $usuarioJWT->generarJWT($usuario->id_usuario, $_ENV['KEY_SECRET_JWT']); //Busca en Variables de Entorno del Sistema
                         // $usuario->token_sesion = $usuarioJWT->generarJWT($usuario->id_usuario, 'KEY_SECRET_JWT'.$usuario->id_usuario);  //Busca en Constante Definida en Config
-                        $usuario->token_sesion = $usuarioJWT->GenerarToken($usuario->id_usuario, $tokenDB);
+                        $usuario->token_sesion = $generarToken->GenerarToken($usuario->id_usuario, $tokenDB);
+                       
+                        if(!empty($usuario->token_sesion)){
+                            if(isset( $usuario->token_sesion['success']) && $usuario->token_sesion['success'] === false){
+                                if(isset( $usuario->token_sesion['error']) && $usuario->token_sesion['error'] === true){
+                                    if(isset( $usuario->token_sesion['mensaje'])){
+                                        echo json_encode(["success" => "false", "mensaje" => $usuario->token_sesion['mensaje'], "datos" => []]);
+                                        exit();
+                                    }
+                                    echo json_encode(["success" => "false", "mensaje" => "No se pudo comunicar con el Servidor", "datos" => []]);
+                                    exit();
+                                }
+                                echo json_encode(["success" => "false", "mensaje" => "No se pudo comunicar con el Servidor", "dato" => []]);
+                            }
+                        }
 
                         // $this->crearHistorialLogin($datos);                       
                         // session_start(); 
+
+                        $tipoEncriptado = new CifradoAES();
+                        $encriptado = new GenerarCifradoService($tipoEncriptado);
                         
                         $_SESSION['UsuarioValido'] = [
-                        "id_usuario" => $usuario->id_usuario,
-                        "id_rol"     => $usuario->id_rol,
+                        "id_usuario" => $encriptado->cifrar($usuario->id_usuario),
+                        "id_rol"     =>  $encriptado->cifrar($usuario->id_rol),
                         "nombre"     => $usuario->nombre_usuario,
                         "apellido"     => $usuario->apellido_usuario,
                         "alias"     => $usuario->alias_usuario
                         ];
                         $_SESSION['EstadoSesion'] = true;
-
+                        
                         $envio["success"] = true;
                         $envio["mensaje"] = "Validación Correcta";
-                        $envio["id_rol"] = $usuario->id_rol;
-                        $envio["id_usuario"] = $usuario->id_usuario;
+                        $envio["id_rol"] = $encriptado->cifrar($usuario->id_rol);
+                        $envio["id_usuario"] = $encriptado->cifrar($usuario->id_usuario);
                         
                         if($datos['id_rol'] == RolesUsuarios::USUARIO->value){
                             $_SESSION['Rol'] = RolesUsuarios::USUARIO->value;                             
@@ -194,7 +235,7 @@ require_once '../Interfaces/IGenerarTokens.php';
                             $envio ["urlPrincipal"]= "admin_dashboard/";
                         }
 
-                        setcookie("access_token", $tokenDB, [
+                        setcookie("access_token", $encriptado->cifrar($tokenDB), [
                             "expires"=>time()+1800,
                             "path"=>"/",
                             "secure"=>true,
@@ -224,13 +265,12 @@ require_once '../Interfaces/IGenerarTokens.php';
 
                     return ["success" => false,  "error" => false, "mensaje" => "La Contraseña es Incorrecta"];
                 }
-            }else{
+            }else{                
                 return ["success" => false,  "error" => false, "mensaje" => "El Usuario ingresado es Invalido"];
             }
-
             
         }catch (PDOException $e) {
-            http_response_code(500);
+            http_response_code(500);                
             return ["success" => false,  "error" => true, "mensaje" => $this->funcionesGenerales->validarCodigoDeError($e->getCode(), $e->getMessage())];
         } catch (Exception $e) {
             http_response_code(500);

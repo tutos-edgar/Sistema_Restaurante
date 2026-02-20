@@ -1,40 +1,50 @@
 <?php 
-
+require_once '../models/FuncionesGenerales.php';
 require_once '../Interfaces/IGenerarTokens.php';
 
 class AccessJWT implements IGenerarTokens {
 
     private $tiempoExpiraToken;
+    private $funcionesGenerales;
+
+    public function __construct() {
+        $this->funcionesGenerales = new FuncionesGenerales();
+    }
 
     public function GenerarToken($idUsuario, $tokenDB, $expiraEnSegundos = 3600) {
 
-        $secretKey = getenv('KEY_SECRET_JWT').$idUsuario;  //Busca en Variables de Entorno en .htaccess y Combina la clave secreta con el ID del usuario
-        $header = [
-            "alg" => "HS256",
-            "typ" => "JWT"
-        ];
+        try{
+            $secretKey = getenv('KEY_SECRET_JWT').$idUsuario;  //Busca en Variables de Entorno en .htaccess y Combina la clave secreta con el ID del usuario
+            $header = [
+                "alg" => "HS256",
+                "typ" => "JWT"
+            ];
 
-        $payload = [
-            "iss" => "tutos-edgar",              // issuer
-            "sub" => $idUsuario,            // usuario
-            "token_sesion" => $tokenDB,
-            "iat" => time(),                // fecha emisión
-            "exp" => time() + $expiraEnSegundos          // expira en 1 hora  3600 segundos  1/2 hora 1800 segundos
-        ];
-        $this->tiempoExpiraToken = time() + 3600; // 1 hora
-       $headerEncoded = $this->base64UrlEncode(json_encode($header));
-        $payloadEncoded = $this->base64UrlEncode(json_encode($payload));
+            $payload = [
+                "iss" => "tutos-edgar",              // issuer
+                "sub" => $idUsuario,            // usuario
+                "token_sesion" => $tokenDB,
+                "iat" => time(),                // fecha emisión
+                "exp" => time() + $expiraEnSegundos          // expira en 1 hora  3600 segundos  1/2 hora 1800 segundos
+            ];
+            $this->tiempoExpiraToken = time() + 3600; // 1 hora
+        $headerEncoded = $this->base64UrlEncode(json_encode($header));
+            $payloadEncoded = $this->base64UrlEncode(json_encode($payload));
 
-        $signature = hash_hmac(
-            'sha256',
-            $headerEncoded . "." . $payloadEncoded,
-            $secretKey,
-            true
-        );
+            $signature = hash_hmac(
+                'sha256',
+                $headerEncoded . "." . $payloadEncoded,
+                $secretKey,
+                true
+            );
 
-        $signatureEncoded = $this->base64UrlEncode($signature);
+            $signatureEncoded = $this->base64UrlEncode($signature);
 
-        return $headerEncoded . "." . $payloadEncoded . "." . $signatureEncoded;
+            return $headerEncoded . "." . $payloadEncoded . "." . $signatureEncoded;
+        }catch (Exception $e) {
+            http_response_code(500);
+            return ["success" => false,  "error" => true, "mensaje" => $this->funcionesGenerales->validarCodigoDeError($e->getCode(), $e->getMessage())];
+        }
 
     }
 

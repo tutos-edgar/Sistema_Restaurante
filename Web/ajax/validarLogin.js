@@ -1,9 +1,9 @@
-urlPeticiones = urlApi + "datosLogin.php";
+urlPeticiones = urlApi + "datosAuthUsuario.php";
 metodoProceso = "validarLogin";
 
 $(document).ready(function() {
 
-    $('#fromEnvio').submit(async e => {
+    $('#formEnvio').submit(async e => {
         e.preventDefault();
 
         var alias = document.getElementById("alias").value;
@@ -64,31 +64,6 @@ $(document).ready(function() {
             return;
         }
 
-        // CONULTAR DATOS DE CONFIG
-        // $.ajax({
-        //     url: '../config/config.php',
-        //     type: 'GET',
-        //     dataType: 'json',
-        //     success: function(TOKENWEB) {
-        //         // Construimos el jsonData con el token recibido
-        //         alert(TOKENWEB);
-        //         let jsonData = {
-        //             metodo: metodoProceso,
-        //             datoRecibido: {
-        //                 id_usuario: idEnvio,
-        //                 nombre_usuario: nombre,
-        //                 apellido_usuario: apellido,
-        //                 correo_usuario: mail,
-        //                 alias_usuario: alias,
-        //                 password_usuario: password,
-        //                 confirmacion_pass: confirmPassword,
-        //                 aceptacion_termino: terminos.checked,
-        //                 apikey: TOKENWEB
-        //             }
-        //         };
-        //     }
-        // });
-
         let jsonData = {
             metodo: metodoProceso,
             datoRecibido: {
@@ -99,63 +74,121 @@ $(document).ready(function() {
             }
         };
 
-        $.ajax({
-            url: urlPeticiones,
-            type: "POST",
-            data: JSON.stringify(jsonData),
-            contentType: "application/json",
-            beforeSend: function() {
-                // mostrar modal antes de enviar
-                showLoading();
-            },
-            success: function(res) {
-                hideLoading();
-                let datos = typeof res === 'string' ? JSON.parse(res) : res;
+        try {
+            showLoading();
+            const response = await axios.post(urlPeticiones, jsonData, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
 
-                if (datos.success === "true") {
+            if (response.data) {
+                if (response.data.success === "true") {
                     Swal.fire({
                         icon: 'success',
-                        title: datos.mensaje || "Datos Guardados Correctamente",
+                        title: response.data.datos.mensaje || "Acceso Concedido Correctamente",
                         showConfirmButton: false,
-                        // timer: tiempoEsperaMensaje
-                        // confirmButtonText: 'Aceptar'
                         timer: tiempoEsperaMensaje
                     }).then(() => {
-                        // if (result.isConfirmed) {
-                        //     $("#fromEnvio").trigger("reset");
-                        //     // window.location.href = "login.php";
-                        // }
-                        window.location.href = datos.datos.urlPrincipal;
-                        $("#fromEnvio").trigger("reset");
+                        window.location.href = response.data.datos.urlPrincipal;
+                        $("#formEnvio").trigger("reset");
                     });
-                    // window.location.href = "login.php";
-                    // window.location.href = dato.urlPrincipal
                 } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: datos.mensaje || "Ocurrió un error 2",
-                        showConfirmButton: false,
-                        timer: tiempoEsperaMensaje
-                    }).then(() => {
-                        window.location.reload();
-                    });
+                    mostrarWarning(response.data.mensaje || "Ocurrió un error al intentar iniciar sesión");
                 }
-            },
-            error: function(xhr, status, error) {
-                hideLoading();
-                console.error("Error en la solicitud AJAX:", {
-                    status: status,
-                    error: error,
-                    responseText: xhr.responseText
-                });
-                Swal.fire({
-                    icon: 'error',
-                    title: 'ERROR al crear la petición',
-                    showConfirmButton: false,
-                    timer: tiempoEsperaMensaje
-                });
+            } else {
+                mostrarWarning(response.data.mensaje || "Ocurrió un error al intentar iniciar sesión");
             }
-        });
+
+        } catch (error) {
+            if (error.response) {
+                mostrarError(error.response.data.mensaje || "Error al Intentar Iniciar Sesión");
+            } else if (error.request) {
+                mostrarError("No se Recibió Respuesta del Servidor");
+            } else {
+                mostrarError("Error al Realizar la Solicitud");
+            }
+        } finally {
+            hideLoading();
+            $("#formEnvio").trigger("reset");
+        }
+
+        // showLoading();
+        // axios.post(urlPeticiones, jsonData)
+        //     .then(response => {
+
+        //         console.log("Respuesta de la API:", response.data);
+        //     })
+        //     .catch(error => {
+        //         if (error.response) {
+        //             mostrarError(error.response.data.mensaje || "Error al Intentar Iniciar Sesión");
+        //         } else if (error.request) {
+        //             mostrarError("No se Recibió Respuesta del Servidor");
+        //         } else {
+        //             mostrarError("Error al Realizar la Solicitud");
+        //         }
+
+        //     }).finally(() => {
+        //         hideLoading();
+        //     });
+
+        // $.ajax({
+        //     url: urlPeticiones,
+        //     type: "POST",
+        //     data: JSON.stringify(jsonData),
+        //     contentType: "application/json",
+        //     beforeSend: function() {
+        //         // mostrar modal antes de enviar
+        //         showLoading();
+        //     },
+        //     success: function(res) {
+        //         hideLoading();
+        //         let datos = typeof res === 'string' ? JSON.parse(res) : res;
+
+        //         if (datos.success === "true") {
+        //             Swal.fire({
+        //                 icon: 'success',
+        //                 title: datos.mensaje || "Datos Guardados Correctamente",
+        //                 showConfirmButton: false,
+        //                 // timer: tiempoEsperaMensaje
+        //                 // confirmButtonText: 'Aceptar'
+        //                 timer: tiempoEsperaMensaje
+        //             }).then(() => {
+        //                 // if (result.isConfirmed) {
+        //                 //     $("#fromEnvio").trigger("reset");
+        //                 //     // window.location.href = "login.php";
+        //                 // }
+        //                 window.location.href = datos.datos.urlPrincipal;
+        //                 $("#fromEnvio").trigger("reset");
+        //             });
+        //             // window.location.href = "login.php";
+        //             // window.location.href = dato.urlPrincipal
+        //         } else {
+        //             Swal.fire({
+        //                 icon: 'warning',
+        //                 title: datos.mensaje || "Ocurrió un error 2",
+        //                 showConfirmButton: false,
+        //                 timer: tiempoEsperaMensaje
+        //             }).then(() => {
+        //                 window.location.reload();
+        //             });
+        //         }
+        //     },
+        //     error: function(xhr, status, error) {
+        //         hideLoading();
+        //         console.error("Error en la solicitud AJAX:", {
+        //             status: status,
+        //             error: error,
+        //             responseText: xhr.responseText
+        //         });
+        //         Swal.fire({
+        //             icon: 'error',
+        //             title: 'ERROR al crear la petición',
+        //             showConfirmButton: false,
+        //             timer: tiempoEsperaMensaje
+        //         });
+        //     }
+        // });
 
     });
 
