@@ -1,8 +1,6 @@
 <?php 
 
-require_once '../models/Usuarios.php';
-
-  interface IGenerarCigrado {
+    interface IGenerarCifrado {
 
     public function cifrar($textoPlano);
 

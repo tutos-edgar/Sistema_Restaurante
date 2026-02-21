@@ -41,15 +41,17 @@ document.getElementById("fotoInput").addEventListener("change", function(e) {
 
 // BOTON TOGLE SWITCH
 
-const switchInput = document.getElementById('estadoSwitch');
-const labelText = document.getElementById('estadoLabel');
+function switchInputForm() {
+    const switchInput = document.getElementById('estadoSwitch');
+    const labelText = document.getElementById('estadoLabel');
 
-switchInput.addEventListener('change', () => {
-    if (switchInput.checked) {
-        labelText.textContent = ' ACTIVO';
-        labelText.style.color = '#28a745';
-    } else {
-        labelText.textContent = ' INACTIVO';
-        labelText.style.color = '#dc3545';
-    }
-});
+    switchInput.addEventListener('change', () => {
+        if (switchInput.checked) {
+            labelText.textContent = ' ACTIVO';
+            labelText.style.color = '#28a745';
+        } else {
+            labelText.textContent = ' INACTIVO';
+            labelText.style.color = '#dc3545';
+        }
+    });
+}

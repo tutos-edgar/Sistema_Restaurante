@@ -2,7 +2,10 @@
 // Asegúrate de que no haya espacios, líneas en blanco o HTML antes de esto
 // header("Location: ../index.php");
 // exit; // Siempre usar exit después de header para detener la ejecución
-include_once 'header_dashboard.php';
+include_once __DIR__ . '/../../API/config/config.php';
+include_once __DIR__ . '/../../API/middleware/validaSesion.php';
+include_once __DIR__ . '/header_dashboard.php';
+echo '<script>var apiKey ="'.TOKENWEB.'";</script>'
 ?>
 
 
@@ -29,7 +32,7 @@ include_once 'header_dashboard.php';
 
         <div class="card p-3 shadow-sm">
             <div class="table-responsive">
-                <table class="table table-hover" id="tablaEmpleados">
+                <table class="table table-hover" id="tablaRegistros">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -64,7 +67,7 @@ include_once 'header_dashboard.php';
                 <!-- FOTO CIRCULAR -->
                 <div class="d-flex justify-content-center mb-3">
                     <div class="position-relative">
-                        <img src="https://i.pravatar.cc/100" id="fotoPreview" class="rounded-circle" style="width:100px;height:100px;object-fit:cover;border:2px solid #2E3135;">
+                        <img src="../img/perfil_user.png" id="fotoPreview" class="rounded-circle" style="width:100px;height:100px;object-fit:cover;border:2px solid #2E3135;">
                         <button type="button" class="btn btn-dark position-absolute bottom-0 end-0 p-1 rounded-circle" style="transform:translate(25%,25%);" onclick="document.getElementById('fotoInput').click();">
                             <i class="bi bi-camera"></i>
                         </button>
@@ -133,7 +136,7 @@ include_once 'header_dashboard.php';
         include_once 'footer.php';
     ?>
 
-      
+    <script src="../ajax/registroPersonal.js"></script>
 
 </body>
 

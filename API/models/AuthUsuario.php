@@ -5,7 +5,7 @@ require_once '../models/Usuarios.php';
 require_once '../middleware/AccessJWT.php';
 require_once '../middleware/AccessDB.php';
 require_once '../Interfaces/IGenerarTokens.php';
-require_once '../Interfaces/IGenerarCigrado.php';
+require_once '../Interfaces/IGenerarCifrado.php';
 require_once '../cifrado/cifrado_AES.php';
 require_once '../Services/GenerarCifradoService.php';
 require_once '../Services/GenerarTokenService.php';
@@ -226,12 +226,13 @@ require_once '../Services/GenerarTokenService.php';
                         $envio["mensaje"] = "Validación Correcta";
                         $envio["id_rol"] = $encriptado->cifrar($usuario->id_rol);
                         $envio["id_usuario"] = $encriptado->cifrar($usuario->id_usuario);
+                        $envio["foto_usuario"] = $usuario->foto_usuario;
                         
                         if($datos['id_rol'] == RolesUsuarios::USUARIO->value){
                             $_SESSION['Rol'] = RolesUsuarios::USUARIO->value;                             
                             $envio ["urlPrincipal"]= "admin_user/";
                         }else if($datos['id_rol'] == RolesUsuarios::ADMINISTRADOR->value){
-                            $_SESSION['Rol'] = RolesUsuarios::ADMINISTRADOR->value;
+                            $_SESSION['Rol'] = $encriptado->cifrar(RolesUsuarios::ADMINISTRADOR->value);
                             $envio ["urlPrincipal"]= "admin_dashboard/";
                         }
 

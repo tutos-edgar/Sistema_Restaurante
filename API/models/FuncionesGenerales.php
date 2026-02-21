@@ -12,10 +12,14 @@ class FuncionesGenerales {
     }
 
 
-    function obtenerToke(){
+    function obtenerTokem(){
         return bin2hex(random_bytes(32));
     }
 
+    function obtenerTokenSeguro(){
+        return hash('sha256', bin2hex(random_bytes(32)));
+    }
+    
     public function obtenerIPCliente(){
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
             $ip = $_SERVER['HTTP_CLIENT_IP'];

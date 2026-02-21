@@ -1,6 +1,6 @@
 <?php 
 
-require_once '../models/Usuarios.php';
+require_once  '../models/Usuarios.php';
 
   interface IAuthUsuario{
 

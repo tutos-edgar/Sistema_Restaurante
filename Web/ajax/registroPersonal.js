@@ -1,65 +1,116 @@
-urlPeticiones = urlApi + "datosUsuarios.php";
-metodoProceso = "registrar";
+urlPeticiones = urlApi + "datosPerfilUser.php";
+metodoProceso = "listar";
 
-alert(urlPeticiones);
+// Función para obtener los datos con Axios
+function cargarDatos() {
+    // try {
+    //     showLoading();
+    //     const response = await axios.post(urlPeticiones, jsonData, {
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         }
+    //     });
 
-document.addEventListener('DOMContentLoaded', function() {
+    //     if (response.data) {
+    //         if (response.data.success === "true") {
+    //             Swal.fire({
+    //                 icon: 'success',
+    //                 title: response.data.datos.mensaje || "Acceso Concedido Correctamente",
+    //                 showConfirmButton: false,
+    //                 timer: tiempoEsperaMensaje
+    //             }).then(() => {
+    //                 window.location.href = response.data.datos.urlPrincipal;
+    //                 $("#formEnvio").trigger("reset");
+    //             });
+    //         } else {
+    //             mostrarWarning(response.data.mensaje || "Ocurrió un error al intentar iniciar sesión");
+    //             if (response.data.urlPincipal) {
+    //                 window.location.href = response.data.urlPrincipal;
+    //             }
+    //         }
+    //     } else {
+    //         mostrarWarning(response.data.mensaje || "Ocurrió un error al intentar iniciar sesión");
+    //         if (response.data.urlPincipal) {
+    //             window.location.href = response.data.urlPrincipal;
+    //         }
+    //     }
 
-    // Función para obtener los datos con Axios
-    function cargarDatos() {
-        return axios.post(urlPetiones, {
-                metodo: "listar",
-            })
-            .then(response => {
-                const json = response.data;
+    // } catch (error) {
+    //     if (error.response) {
+    //         mostrarError(error.response.data.mensaje || "Error al Intentar Iniciar Sesión");
+    //     } else if (error.request) {
+    //         mostrarError("No se Recibió Respuesta del Servidor");
+    //     } else {
+    //         mostrarError("Error al Realizar la Solicitud");
+    //     }
+    // } finally {
+    //     hideLoading();
+    //     $("#formEnvio").trigger("reset");
+    // }
 
-                // Validaciones similares a tu dataSrc
-                if (!json) {
-                    Swal.fire({
-                        position: "center",
-                        icon: "error",
-                        title: "No hay Datos Disponible",
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    return [];
-                }
-
-                if (json.success === false || json.error === true) {
-                    if (json.message) {
-                        console.error("Error del servidor:", json.message);
-                    }
-                    return [];
-                }
-
-                if (json.datos && Array.isArray(json.datos)) {
-                    return json.datos;
-                } else {
-                    Swal.fire({
-                        position: "center",
-                        icon: "error",
-                        title: "Formato de datos inesperado o datos vacíos",
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                    return [];
-                }
-            })
-            .catch(error => {
-                console.error("Error al realizar la petición:", error);
+    return axios.post(urlPeticiones, {
+            metodo: "listar", // Cambia según tu API
+            datoRecibido: {
+                apiKey: apiKey
+            }
+        })
+        .then(response => {
+            hideLoading();
+            const json = response.data;
+            // Validaciones similares a tu dataSrc
+            if (!json || !json.datos) {
                 Swal.fire({
                     position: "center",
                     icon: "error",
-                    title: "Error de conexión con la API",
+                    title: "No hay Datos Disponible",
                     showConfirmButton: false,
                     timer: 1500
                 });
                 return [];
-            });
-    }
+            }
+
+
+            if (json.success === false || json.error === true) {
+                if (json.message) {
+                    mostrarError(json.mensaje || "Ocurrio un Error al Realizar la Petición");
+                }
+                return [];
+            }
+
+            if (json.datos && Array.isArray(json.datos)) {
+                return json.datos;
+            } else {
+                Swal.fire({
+                    position: "center",
+                    icon: "error",
+                    title: "Formato de datos inesperado o datos vacíos",
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+                return [];
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            if (error.response) {
+                mostrarError(error.response.data.mensaje || "Error al Intentar Iniciar Sesión");
+            } else if (error.request) {
+                mostrarError("No se Recibió Respuesta del Servidor");
+            } else {
+                mostrarError("Error al Realizar la Solicitud");
+            }
+            return [];
+        }).finally(() => {
+            // ocultarSpinner(); // Ocultar el spinner cuando la petición se complete
+        });
+}
+
+
+$(document).ready(function() {
 
     // Inicializar DataTable con datos cargados por Axios
     cargarDatos().then(data => {
+
         $('#tablaRegistros').DataTable({
             language: {
                 lengthMenu: "Mostrar _MENU_ registros",
@@ -78,34 +129,39 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             data: data, // <-- Aquí pasamos los datos obtenidos por Axios
             columns: [
-                { data: "documento_personal" },
-                { data: "nombre_personal" },
-                { data: "apellido_personal" },
-                { data: "telefono_personal" },
+                { data: "id_perfil_usuario" },
+                { data: "documento" },
+                { data: "nombre_perfil" },
+                { data: "apellido_perfil" },
+                { data: "email_perfil" },
+                { data: "telefono_perfil" },
                 {
-                    data: "foto_personal",
+                    data: "foto_perfil",
                     render: function(data, type, row) {
                         if (data && data !== "") {
-                            return `<img src="../ventas_deportivas_api/${data}" alt="Foto Personal" style="width: 100px; height: 70px; border-radius: 5px;" />`;
+                            return `<img src="../../API/img/${data}" alt="Foto Personal" style="width: 100px; height: 70px; border-radius: 5px;" />`;
                         } else {
-                            return '<span class="text-muted">No generado</span>';
+                            return '<span class="text-muted">Sin Foto</span>';
+                            // return `<img src="../../API/img/perfil_user.png" alt="Foto Personal" style="width: 100px; height: 70px; border-radius: 5px;" />`;
                         }
                     }
                 },
-                { data: "correo_personal" },
-                { data: "fecha_nacimiento" },
-                { data: "edad_personal" },
-                { data: "direccion_personal" },
-                { data: "btnEstadoPersona" },
-                { data: "botones" }
+                { data: "botones" },
+                // { data: "fecha_nacimiento" },
+                // { data: "edad_personal" },
+                // { data: "direccion_personal" },
+                // { data: "btnEstadoPersona" },
+                // { data: "botones" }
             ]
         });
     });
 
-});
+})
 
 
 // $(document).ready(function() {
+
+//     alert("este es otro ");
 
 //     $('#labelTerminos').click(function(e) {
 //         // Cambiar color del header del modal

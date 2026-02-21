@@ -4,6 +4,7 @@ $data = json_decode(file_get_contents("php://input"), true);
 
 require_once '../models/PerfilUser.php';
 require_once '../controller/PerfilUserController.php';
+require_once '../Services/GenerarDatosService.php';
 require_once '../config/database.php';
 include_once '../middleware/obtenerSesion.php';
 include_once '../middleware/auth.php';
@@ -16,13 +17,13 @@ if (!isset($data['metodo'])) {
 try{
 
     $metodo = $data['metodo'];
-    if($metodo != "listar" && $metodo != "listarprecios"){
+    // if($metodo != "listar" && $metodo != "listarprecios"){
         if(!isset($data['datoRecibido'])){
             echo json_encode(["success" => "false", "mensaje" => "Faltan datos", "datos" => []]);
             exit;
         }
          $datosRecibidos = $data['datoRecibido'];
-    }
+    // }
 
     $database = new Database();
     $db = $database->connect();
@@ -32,6 +33,8 @@ try{
 
     $objModelo = new PerfilUser($db); // $db es la conexión PDO
     $objController = new PerfilUserControllerr($db);
+    $servicio = new GenerarDatosService($objController);
+    // $funcionesGenerales = new FuncionesGenerales();
 
     $objModelo->id_perfil_usuario = (isset($datosRecibidos['id_perfil_usuario'])) ?  $datosRecibidos['id_perfil_usuario'] : '';
     $objModelo->id_usuario = (isset($datosRecibidos['id_usuario'])) ?  $datosRecibidos['id_usuario'] : '';
@@ -40,16 +43,21 @@ try{
     $objModelo->email_perfil = (isset($datosRecibidos['correo_perfil'])) ?  $datosRecibidos['correo_perfil'] : '';
     $objModelo->fecha_nacimiento = (isset($datosRecibidos['fecha_nacimiento'])) ?  $datosRecibidos['fecha_nacimiento'] : '';
     $objModelo->happy_birthday = (isset($datosRecibidos['happy_birthday'])) ?  $datosRecibidos['happy_birthday'] : '';
+    $objModelo->telefono_perfil = (isset($datosRecibidos['telefono_perfil'])) ?  $datosRecibidos['telefono_perfil'] : '';
+    $objModelo->nit = (isset($datosRecibidos['nit'])) ?  $datosRecibidos['nit'] : '';
+    $objModelo->documento = (isset($datosRecibidos['documento'])) ?  $datosRecibidos['documento'] : '';
     
-    $objModelo->alias_usuario = (isset($datosRecibidos['alias'])) ?  $datosRecibidos['alias'] : '';
-    $objModelo->pass_usuario = (isset($datosRecibidos['password'])) ?  $datosRecibidos['password'] : '';
-    $objModelo->pass_new = (isset($datosRecibidos['passwordnew'])) ?  $datosRecibidos['passwordnew'] : '';
-    $confirmacion = (isset($datosRecibidos['passwordconfirm'])) ?  $datosRecibidos['passwordconfirm'] : '';
+    // $objModelo->alias_usuario = (isset($datosRecibidos['alias'])) ?  $datosRecibidos['alias'] : '';
+    // $objModelo->pass_usuario = (isset($datosRecibidos['password'])) ?  $datosRecibidos['password'] : '';
+    // $objModelo->pass_new = (isset($datosRecibidos['passwordnew'])) ?  $datosRecibidos['passwordnew'] : '';
+    // $confirmacion = (isset($datosRecibidos['passwordconfirm'])) ?  $datosRecibidos['passwordconfirm'] : '';
 
     $apiKey = (isset($datosRecibidos['apiKey'])) ?  $datosRecibidos['apiKey'] : '';
-    // if($metodo != "obtenerdatosperfil"){
-    //     $validaWeb = AUTH::ValidarPaginas($apiKey);
-    // }
+    $validaWeb = AUTH::ValidarPaginasPeticion($apiKey);
+    if(!$validaWeb){
+        echo json_encode(["success" => "false", "mensaje" => "Petición Negada ", "urlPricipal" => URLWEB, "error" => "Datos Faltantes", "datos" => []]);
+        exit;
+    }
     
     //CONVERTIR DATOS HTML SCRIPT A TEXTO
     $objModelo->id_perfil_usuario = htmlspecialchars($objModelo->id_perfil_usuario);
@@ -59,10 +67,10 @@ try{
     $objModelo->happy_birthday = htmlspecialchars($objModelo->happy_birthday);
     $objModelo->fecha_nacimiento = htmlspecialchars($objModelo->fecha_nacimiento);
 
-    $objModelo->alias_usuario = htmlspecialchars($objModelo->alias_usuario);
-    $objModelo->pass_usuario = htmlspecialchars($objModelo->pass_usuario);
-    $objModelo->pass_new = htmlspecialchars($objModelo->pass_new);
-    $confirmacion = htmlspecialchars($confirmacion);
+    // $objModelo->alias_usuario = htmlspecialchars($objModelo->alias_usuario);
+    // $objModelo->pass_usuario = htmlspecialchars($objModelo->pass_usuario);
+    // $objModelo->pass_new = htmlspecialchars($objModelo->pass_new);
+    // $confirmacion = htmlspecialchars($confirmacion);
 
     if(strtolower($metodo) == "actualizarpass"){
         // //VALIDACIONES DE DATOS OBLIGATORIOS
@@ -81,24 +89,24 @@ try{
         }
 
         $regex = "/^[^\"'\/\\\\\!\=\{\}\>\<\|\°\;\(\\^)]+$/u";
-        if (!preg_match($regex, $objModelo->alias_usuario)) {
-            echo json_encode(["success" => "false", "mensaje" => "El Alias o Usuario Contiene Caracteres no Válidos", "error" => "Datos Faltantes", "datos" => []]);
-            exit;
-        }else if (!preg_match($regex, $objModelo->pass_usuario)) {
-            echo json_encode(["success" => "false", "mensaje" => "La Contraseña Actual Contiene Caracteres no Válidos", "error" => "Datos Faltantes", "datos" => []]);
-            exit;
-        }else if (!preg_match($regex, $objModelo->pass_new)) {
-            echo json_encode(["success" => "false", "mensaje" => "La Nueva Contraseña Contiene Caracteres no Válidos", "error" => "Datos Faltantes", "datos" => []]);
-            exit;
-        }else if (!preg_match($regex, $confirmacion)) {
-            echo json_encode(["success" => "false", "mensaje" => "La Confirmación de Contraseña Contiene Caracteres no Válidos", "error" => "Datos Faltantes", "datos" => []]);
-            exit;
-        }
+        // if (!preg_match($regex, $objModelo->alias_usuario)) {
+        //     echo json_encode(["success" => "false", "mensaje" => "El Alias o Usuario Contiene Caracteres no Válidos", "error" => "Datos Faltantes", "datos" => []]);
+        //     exit;
+        // }else if (!preg_match($regex, $objModelo->pass_usuario)) {
+        //     echo json_encode(["success" => "false", "mensaje" => "La Contraseña Actual Contiene Caracteres no Válidos", "error" => "Datos Faltantes", "datos" => []]);
+        //     exit;
+        // }else if (!preg_match($regex, $objModelo->pass_new)) {
+        //     echo json_encode(["success" => "false", "mensaje" => "La Nueva Contraseña Contiene Caracteres no Válidos", "error" => "Datos Faltantes", "datos" => []]);
+        //     exit;
+        // }else if (!preg_match($regex, $confirmacion)) {
+        //     echo json_encode(["success" => "false", "mensaje" => "La Confirmación de Contraseña Contiene Caracteres no Válidos", "error" => "Datos Faltantes", "datos" => []]);
+        //     exit;
+        // }
 
-        if($objModelo->pass_new != $confirmacion){
-            echo json_encode(["success" => "false", "mensaje" => "La Confirmación y La Nueva Contraseña no son Iguales", "error" => "Datos Faltantes", "datos" => []]);
-            exit;
-        }
+        // if($objModelo->pass_new != $confirmacion){
+        //     echo json_encode(["success" => "false", "mensaje" => "La Confirmación y La Nueva Contraseña no son Iguales", "error" => "Datos Faltantes", "datos" => []]);
+        //     exit;
+        // }
 
         if(empty($objModelo->id_usuario)){
             $objModelo->id_usuario = $IdUser;
@@ -121,6 +129,12 @@ try{
         }else if(!filter_var($objModelo->email_perfil, FILTER_VALIDATE_EMAIL)){
             echo json_encode(["success" => "false", "mensaje" => "Favor de Ingresar un E-Mail Valido ", "error" => "Datos Faltantes", "datos" => []]);
             exit;
+        }else if(empty($objModelo->documento)){
+            echo json_encode(["success" => "false", "mensaje" => "Favor de Ingresar un Documento", "error" => "Datos Faltantes", "datos" => []]);
+            exit;
+        }else if(empty($objModelo->telefono_perfil)){
+            echo json_encode(["success" => "false", "mensaje" => "Favor de Ingresar un Teléfono", "error" => "Datos Faltantes", "datos" => []]);
+            exit;
         }
 
         $regex = "/^[^\"'\/\\\\\!\=\{\}\>\<\|\°\;\(\\^)]+$/u";
@@ -133,8 +147,14 @@ try{
         }else if (!preg_match($regex, $objModelo->email_perfil)) {
             echo json_encode(["success" => "false", "mensaje" => "El Correo Contiene Caracteres no Válidos", "error" => "Datos Faltantes", "datos" => []]);
             exit;
-        } 
-      
+        }else if (!preg_match($regex, $objModelo->documento)) {
+            echo json_encode(["success" => "false", "mensaje" => "El Correo Contiene Caracteres no Válidos", "error" => "Datos Faltantes", "datos" => []]);
+            exit;
+        } else if (!preg_match($regex, $objModelo->telefono_perfil)) {
+            echo json_encode(["success" => "false", "mensaje" => "El Teléfono Contiene Caracteres no Válidos", "error" => "Datos Faltantes", "datos" => []]);
+            exit;
+        }
+
     }
 
     if(strtolower($metodo) == "obtenerdatosperfil"){
@@ -143,37 +163,39 @@ try{
             $objModelo->id_usuario = $IdUser;
         }        
     }
-
+   
         switch (strtolower($metodo)) { 
             case 'registrar':
                 // Aquí creas tu objeto Usuario, lo llenas y lo guardas
                 if (!isset($objModelo->nombre_perfil) || !isset($objModelo->apellido_perfil ) || !isset($objModelo->email_perfil )) {
                     echo json_encode(["success" => "false", "mensaje" => "Favor de Ingresar datos Necesario para el Registro",  "error" => "Faltan datos", "datos" => []]);
                     exit;
-                }  
-                $objController->insertarPerfil($objModelo);
+                } 
+                
+                $servicio->guardar($objModelo);
                 break;
 
-            case 'actualizarpass':
+            case 'actualizar':
                 // lógica para editar 
-                if (!isset($objModelo->alias_usuario) || !isset($objModelo->pass_usuario) || !isset($objModelo->pass_new)) {
-                    echo json_encode(["error" => "Faltan datos"]);
+                if (!isset($objModelo->id_perfil_usuario) || !isset($objModelo->nombre_perfil) || !isset($objModelo->apellido_perfil) || !isset($objModelo->email_perfil) || !isset($objModelo->telefono_perfil)) {
+                    echo json_encode(["success" => "false", "mensaje" => "Favor de Ingresar datos Necesario para el Registro",  "error" => "Faltan datos", "datos" => []]);
                     exit;
                 }
 
-                $objController->CambiarPasswordUser($objModelo);
+                $servicio->modificar($objModelo);
                 break;
 
             case 'eliminar':
-                if (!$objModelo->id_perfil_usuario && !$objModelo->id_usuario) {
-                    echo json_encode(["error" => "Faltan datos"]);
+                if (!isset($objModelo->id_perfil_usuario) || empty($objModelo->id_perfil_usuario)) {
+                    echo json_encode(["success" => "false", "mensaje" => "Favor de Ingresar datos Necesario para el Registro",  "error" => "Faltan datos", "datos" => []]);
                     exit;
                 }
-                // $objController->eliminarPerfil($objModelo->id_perfil_usuario);
+               
+                $servicio->eliminar($objModelo->id_perfil_usuario);
                 break;
 
             case 'listar':
-                $objController->obtenerTodos();
+                $servicio->listar();
                 break;
         
             case 'obtenerdatosperfil':
@@ -182,7 +204,7 @@ try{
                     exit;
                 }
                 // echo json_encode(["success" => "false", "mensaje" => "El Correo Contiene Caracteres no Válidos", "error" => "Datos Faltantes", "datos" => []]);
-                $objController->obtenerIdPerfilUsuario($objModelo->id_perfil_usuario);
+                // $objController->obtenerIdPerfilUsuario($objModelo->id_perfil_usuario);
                 break;  
             // case 'obteneridprecios':
             //     if (!$objModelo->id_producto) {

@@ -1,6 +1,6 @@
 <?php 
 
-class CifradoAES implements IGenerarCigrado {
+class CifradoAES implements IGenerarCifrado {
 
     private $claveSecreta;
     private $metodoCifrado;

@@ -84,10 +84,12 @@ function validarCaracteresEspeciales(texto) {
 function showLoading() {
     $("#loadingModal").css("display", "flex");
     $("#loadingModal").css("z-index", 9999);
+    // document.getElementById('loadingModal').style.display = 'flex';
 }
 
 function hideLoading() {
     $("#loadingModal").hide();
+    // document.getElementById('loadingModal').style.display = 'none';
 }
 
 function calcularEdad(fechaNacimiento) {
@@ -124,4 +126,18 @@ function mostrarWarning(mensaje) {
         showConfirmButton: false,
         timer: tiempoEsperaMensaje
     });
+}
+
+
+function visualizarFoto(input, imgPreviewId) {
+    document.getElementById(input).addEventListener("change", function(e) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            document.getElementById(imgPreviewId).src = reader.result;
+        }
+        if (e.target.files[0]) {
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    });
+
 }

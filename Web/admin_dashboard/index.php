@@ -2,16 +2,16 @@
 // Asegúrate de que no haya espacios, líneas en blanco o HTML antes de esto
 // header("Location: ../index.php");
 // exit; // Siempre usar exit después de header para detener la ejecución
-include_once 'header_dashboard.php';
+include_once __DIR__ . '/../../API/middleware/validaSesion.php';
+include_once __DIR__ . '/header_dashboard.php';
 ?>
 
 
 <body>
 
     <?php
-
-        include_once 'nav_bar_dashboard.php';
-        include_once 'side_bar_dashboard.php';
+        include_once __DIR__ . '/nav_bar_dashboard.php';
+        include_once __DIR__ . '/side_bar_dashboard.php';
     ?>
 
 

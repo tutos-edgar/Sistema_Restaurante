@@ -1,10 +1,16 @@
 <?php 
+
+// $uri = rtrim(dirname(dirname(dirname($_SERVER['PHP_SELF']))), '/\\');
 $uri  = rtrim(dirname(dirname($_SERVER['PHP_SELF'])), '/\\');
-define('DOMAIN', 'www.tudominio.com');
+// Ruta hacia el directorio principal (Sistema_Restaurante)
+define('URLINIT', "http://" . $_SERVER['HTTP_HOST'] . "/dashboard/proyectos/Sistema_Restaurante/");
+define('URLWEB', "http://" . $_SERVER['HTTP_HOST'] . "/dashboard/proyectos/Sistema_Restaurante/WEB");
+define('URLAPI', "http://" . $_SERVER['HTTP_HOST'] . "/dashboard/proyectos/Sistema_Restaurante/API");
+define('DOMAIN', 'http://localhost:5080');
 define('HOSTNAME', $_SERVER['HTTP_HOST']);
 define('URLPRINCIPAL',  "http://".HOSTNAME.$uri."/");
 define('URLINICIAL',  "http://".HOSTNAME.$uri."/Web/");
-define('URLADMIN',  "http://".HOSTNAME.$uri."/admin_dashboard/");
+define('URLADMIN',  "http://".HOSTNAME.$uri."../../admin_dashboard/");
 define('URLUSER',  "http://".HOSTNAME.$uri."/admin_user/");
 define('TOKENWEB', 'QMNg6HwgUBJsIhPognlI133uGRGpBJntuhexhRyLf9aJeAhr2T4oegJJUL49');
 define('CANTIDADLIMITEPASS', 4);
@@ -17,7 +23,6 @@ define('LIMITES_URL_CANAL', 2);
 define('KEY_SECRET_JWT', 'sistema_restaurante_jwt_secret');
 define('KEY_SECRET_AES', 'sistema_restaurante_aes_tutos-edgar');
 define('KEY_IV', '$i$tem@tut0$3dg@r');
-
 define('ROOT_PATH', dirname(__DIR__));
 define("ACCESS_TIME", 900); // 15 min
 define("REFRESH_TIME", 604800); // 7 días
@@ -67,6 +72,15 @@ function ObtenerEstadoUsuario($estado){
         default:
             return "Estado del Usuario es Desconocido";
     }
+}
+
+
+function obtenerRoles(int $value): string {
+        return match($value) {
+            RolesUsuarios::ADMINISTRADOR->value => 'ADMINISTRADOR',
+            RolesUsuarios::USUARIO->value => 'USUARIO',
+            default => 'Desconocido',
+        };
 }
 
 

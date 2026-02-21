@@ -5,7 +5,8 @@ require_once '../config/config.php';
 // require __DIR__ .'/../config/database.php';
 date_default_timezone_set( 'America/Guatemala' );
 
-
+ini_set('display_errors', 0);  // Desactiva la visualización de errores
+error_reporting(E_ALL); 
 
 class AUTH {
 
@@ -71,9 +72,23 @@ class AUTH {
             if($tokenWeb == TOKENWEB){
                 return true;
             }
-        
-            header("Location: ".URLINICIAL);
+           
+            header("Location: ".URLWEB);
             exit;
+
+        }catch(Exception $e){
+            return false;
+        }
+    }
+
+    public static function ValidarPaginasPeticion($tokenWeb){
+        try{
+            
+            if($tokenWeb == TOKENWEB){
+                return true;
+            }
+           
+            return false;
 
         }catch(Exception $e){
             return false;

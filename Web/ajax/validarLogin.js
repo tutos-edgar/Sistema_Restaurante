@@ -95,9 +95,15 @@ $(document).ready(function() {
                     });
                 } else {
                     mostrarWarning(response.data.mensaje || "Ocurrió un error al intentar iniciar sesión");
+                    if (response.data.urlPincipal) {
+                        window.location.href = response.data.urlPrincipal;
+                    }
                 }
             } else {
                 mostrarWarning(response.data.mensaje || "Ocurrió un error al intentar iniciar sesión");
+                if (response.data.urlPincipal) {
+                    window.location.href = response.data.urlPrincipal;
+                }
             }
 
         } catch (error) {

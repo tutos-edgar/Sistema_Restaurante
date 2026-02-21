@@ -45,20 +45,19 @@
                 <!-- USUARIO -->
                 <div class="dropdown">
                     <a class="d-flex align-items-center text-white text-decoration-none" data-bs-toggle="dropdown">
-                        <img src="https://i.pravatar.cc/40" class="rounded-circle me-2">
+                        <img src=<?php echo isset($fotoUsuario) && isset($fotoUsuario) ? $fotoUsuario : 'https://i.pravatar.cc/40'; ?> class="rounded-circle me-2">
                         <div class="text-start">
-                            <div class="fw-semibold">Juan Pérez</div>
-                            <small class="text-muted"><span class="text-white">Administrador</span></small>
+                            <div class="fw-semibold"><?php echo $aliasUsuario; ?></div>
+                            <small class="text-muted"><span class="text-white"><?php echo isset($encriptado) && isset($rolUsuario) ? obtenerRoles($encriptado->descifrar($rolUsuario)) : 'No disponible'; ?></span></small>
                         </div>
                     </a>
-
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="#">Mi perfil</a></li>
                         <!-- <li><a class="dropdown-item" href="#">Configuración</a></li> -->
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item text-danger" href="#">Cerrar sesión</a></li>
+                        <li><a class="dropdown-item text-danger" href="../../API/middleware/loyout.php">Cerrar sesión</a></li>
                     </ul>
 
                     

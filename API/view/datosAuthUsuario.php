@@ -1,13 +1,15 @@
 <?php
 header("Content-Type: application/json");
 $data = json_decode(file_get_contents("php://input"), true);
-
+ini_set('display_errors', 0);  
+error_reporting(E_ALL); 
 require_once '../models/Usuarios.php';
 require_once '../models/FuncionesGenerales.php';
 require_once '../controller/AuthUsuariosController.php';
 require_once '../config/database.php';
 require_once '../Interfaces/IAuthUsuario.php';
 require_once '../Services/ValidarLoginService.php';
+require_once '../middleware/auth.php';
 
 if (!isset($data['metodo'])) {
     echo json_encode(["success" => "false", "mensaje" => "Faltan datos del metodo", "dato" => []]);
@@ -42,7 +44,12 @@ try{
     $objModelo->id_rol = (isset($datosRecibidos['id_rol'])) ?  $datosRecibidos['id_rol'] : '';
     $objModelo->tipo_sistema = (isset($datosRecibidos['tipo_sistema'])) ?  $datosRecibidos['tipo_sistema'] : '';    
     $objModelo->id_dispositivo = (isset($datosRecibidos['id_dispositivo'])) ?  $datosRecibidos['id_dispositivo'] : '';
-    
+    $apiKey = (isset($datosRecibidos['apiKey'])) ?  $datosRecibidos['apiKey'] : '';   
+    $validaWeb = AUTH::ValidarPaginasPeticion($apiKey);    
+    if(!$validaWeb){
+        echo json_encode(["success" => "false", "mensaje" => "Petición Negada ", "urlPricipal" => URLWEB, "error" => "Datos Faltantes", "datos" => []]);
+        exit;
+    }
     //CONVERTIR DATOS HTML SCRIPT A TEXTO
     $objModelo->id_usuario = htmlspecialchars($objModelo->id_usuario);
     $objModelo->alias_usuario = htmlspecialchars($objModelo->alias_usuario);
