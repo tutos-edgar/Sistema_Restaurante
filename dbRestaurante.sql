@@ -113,14 +113,16 @@ CREATE TABLE perfiles_usuarios (
     documento VARCHAR(100) NOT NULL UNIQUE,
     nombre_perfil VARCHAR(200) NOT NULL, 
     apellido_perfil VARCHAR(200),
+    sexo VARCHAR(20),
     email_perfil VARCHAR(200) UNIQUE,
     telefono_perfil VARCHAR(200) NOT NULL,
     foto_perfil VARCHAR(255),
-    nit VARCHAR(50) UNIQUE,
+    nit VARCHAR(50) NOT NULL,
     bio_perfil TEXT,
     fecha_nacimiento DATE,
     happy_birthday DATE,
     id_estado_perfil INT DEFAULT 1,
+    direccion_perfil VARCHAR(500),
     fecha_cambio_estado DATETIME,
     token_recuperacion VARCHAR(500) DEFAULT '',
     fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -129,7 +131,13 @@ CREATE TABLE perfiles_usuarios (
     FOREIGN KEY (id_estado_perfil) REFERENCES estados_perfil_usuario(id_estado_perfil)
 );
 
+ALTER TABLE perfiles_usuarios DROP INDEX nit;  -- ELIMINAR UNIQUE DE LA COLUMNA
+CREATE UNIQUE INDEX email ON perfiles_usuarios(email) WHERE email IS NOT NULL;  --AGREGAR INDICE UNICO PARCIAL VALIDA QUE NO SE REPITA MIENTRAS NO SEA NULO
+CREATE UNIQUE INDEX nit ON perfiles_usuarios(nit) WHERE nit IS NOT NULL AND nit != 'C/F';
+
 ALTER TABLE perfiles_usuarios ADD COLUMN fecha_cambio_estado DATETIME; 
+ALTER TABLE perfiles_usuarios ADD COLUMN sexo VARCHAR(20) NOT NULL; 
+ALTER TABLE perfiles_usuarios ADD COLUMN direccion_perfil VARCHAR(500); 
 
 
 CREATE TABLE  token_sesion (

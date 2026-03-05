@@ -80,16 +80,16 @@ function validarCaracteresEspeciales(texto) {
     return false;
 }
 
-
 function showLoading() {
-    $("#loadingModal").css("display", "flex");
-    $("#loadingModal").css("z-index", 9999);
-    // document.getElementById('loadingModal').style.display = 'flex';
+    // $("#loadingModal").css("display", "flex");
+    // $("#loadingModal").css("z-index", 9999);
+    document.getElementById('loadingModal').style.display = 'flex';
 }
 
 function hideLoading() {
-    $("#loadingModal").hide();
-    // document.getElementById('loadingModal').style.display = 'none';
+    // $("#loadingModal").hide();
+    // $("#loadingModal").css("display", "none");
+    document.getElementById('loadingModal').style.display = 'none';
 }
 
 function calcularEdad(fechaNacimiento) {
@@ -118,7 +118,6 @@ function mostrarError(mensaje) {
     });
 }
 
-
 function mostrarWarning(mensaje) {
     Swal.fire({
         icon: 'warning',
@@ -127,7 +126,6 @@ function mostrarWarning(mensaje) {
         timer: tiempoEsperaMensaje
     });
 }
-
 
 function visualizarFoto(input, imgPreviewId) {
     document.getElementById(input).addEventListener("change", function(e) {
@@ -140,4 +138,8 @@ function visualizarFoto(input, imgPreviewId) {
         }
     });
 
+}
+
+function cambiarTituloModal(titulo, icono) {
+    $(".modal-title").html('<i class="bi ' + icono + '"></i> ' + titulo);
 }

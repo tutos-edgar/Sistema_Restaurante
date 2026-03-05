@@ -25,7 +25,7 @@ echo '<script>var apiKey ="'.TOKENWEB.'";</script>'
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3><i class="bi bi-person-badge"></i>  Empleados</h3>
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalEmpleado">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalEmpleado" id="btnNuevo">
                 <i class="bi bi-plus-circle"></i> Nuevo
             </button>
         </div>
@@ -38,11 +38,13 @@ echo '<script>var apiKey ="'.TOKENWEB.'";</script>'
                             <th>ID</th>
                             <th>Documento</th>
                             <th>Nombre</th>
-                            <th>Apellido</th>                            
+                            <th>Apellido</th>
+                            <th>Sexo</th>                            
                             <th>Correo</th>
                             <th>Teléfono</th>
                             <th>Foto</th>
-                            <!-- <th>Rol</th> -->
+                            <th>Estado</th>
+                            <th>Direccion</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -61,9 +63,8 @@ echo '<script>var apiKey ="'.TOKENWEB.'";</script>'
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-            <form id="fromRegistro">
+            <form id="formDatos">
                 <input type="hidden" name="id" id="empleadoId">
-
                 <!-- FOTO CIRCULAR -->
                 <div class="d-flex justify-content-center mb-3">
                     <div class="position-relative">
@@ -73,7 +74,7 @@ echo '<script>var apiKey ="'.TOKENWEB.'";</script>'
                         </button>
                     </div>
                 </div>
-                <input type="file" id="fotoInput" name="foto" accept="image/*" class="d-none">
+                <input type="file" id="fotoInput" name="foto" accept="image/*" class="d-none" onchange="visualizarFoto('fotoInput', 'fotoPreview');">
 
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -82,7 +83,7 @@ echo '<script>var apiKey ="'.TOKENWEB.'";</script>'
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Nit</label>
-                        <input type="text" class="form-control" name="nit" required>
+                        <input type="text" class="form-control" name="nit">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Nombre Completo</label>
@@ -91,6 +92,15 @@ echo '<script>var apiKey ="'.TOKENWEB.'";</script>'
                     <div class="col-md-6">
                         <label class="form-label">Apellido</label>
                         <input type="text" class="form-control" name="apellido" required>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label for="" class="col-form-label">Sexo</label>
+                            <select name="sexo" id="sexo" class="form-control">
+                                <option value="1">MASCULINO</option>
+                                <option value="2">FEMENINO</option>
+                             </select>
+                        </div>
                     </div>
 
                     <div class="col-md-6">
@@ -116,12 +126,27 @@ echo '<script>var apiKey ="'.TOKENWEB.'";</script>'
                         <label class="form-label">Fecha Nacimiento</label>
                         <input type="date" class="form-control" name="fecha_nacimiento" required>
                     </div> 
+
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label for="" class="col-form-label">Estado Perfil</label>
+                            <select name="sexo" id="estado" class="form-control">
+                                <option value="1">ACTIVO</option>
+                                <option value="2">INACTIVO</option>
+                             </select>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-12">
+                        <label class="form-label">Dirección</label>
+                        <input type="text" class="form-control" name="direccion">
+                    </div>
                 </div>
             </form>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" form="formEmpleado" class="btn btn-success">Guardar</button>
+            <button type="submit" id="btnEnviar" form="formDatos" class="btn btn-success">Guardar</button>
         </div>
         </div>
     </div>

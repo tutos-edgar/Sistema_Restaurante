@@ -1,7 +1,6 @@
 urlPeticiones = urlApi + "datosUsuarios.php";
 metodoProceso = "registrar";
 
-alert(urlPeticiones);
 
 document.addEventListener('DOMContentLoaded', function() {
 

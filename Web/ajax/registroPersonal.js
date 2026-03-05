@@ -48,6 +48,7 @@ function cargarDatos() {
     //     $("#formEnvio").trigger("reset");
     // }
 
+    showLoading();
     return axios.post(urlPeticiones, {
             metodo: "listar", // Cambia según tu API
             datoRecibido: {
@@ -101,7 +102,7 @@ function cargarDatos() {
             }
             return [];
         }).finally(() => {
-            // ocultarSpinner(); // Ocultar el spinner cuando la petición se complete
+            hideLoading(); // Ocultar el spinner cuando la petición se complete
         });
 }
 
@@ -109,7 +110,8 @@ function cargarDatos() {
 $(document).ready(function() {
 
     // Inicializar DataTable con datos cargados por Axios
-    cargarDatos().then(data => {
+    //    tablausuarios.ajax.reload(null, false);
+    tablaDatos = cargarDatos().then(data => {
 
         $('#tablaRegistros').DataTable({
             language: {
@@ -133,6 +135,7 @@ $(document).ready(function() {
                 { data: "documento" },
                 { data: "nombre_perfil" },
                 { data: "apellido_perfil" },
+                { data: "sexo" },
                 { data: "email_perfil" },
                 { data: "telefono_perfil" },
                 {
@@ -146,15 +149,214 @@ $(document).ready(function() {
                         }
                     }
                 },
+                // { data: "nombre_estado" },
+                { data: "btnEstadoPersona" },
+                { data: "direccion_perfil" },
                 { data: "botones" },
                 // { data: "fecha_nacimiento" },
                 // { data: "edad_personal" },
-                // { data: "direccion_personal" },
-                // { data: "btnEstadoPersona" },
+                // { data: "direccion_personal" }, 
                 // { data: "botones" }
             ]
         });
     });
+
+    $("#btnNuevo").click(function() {
+
+        opcion = 1; //Dar de Alta
+
+        cambiarTituloModal("  Registrar Empleado", "bi bi-person-badge");
+        $("#btnEnviar").text('Guardar');
+        $("#formRegistro").trigger("reset");
+        $('#fotoPreview').attr('src', '');
+        $(".btn-close").css("color", "white");
+        $('#fotoPreview').attr('src', '../img/perfil_user.png');
+        // $(".modal-header").css("background-color", "black");
+        // $(".modal-header").css("color", "white");
+        // $('#modalCRUD').modal('show');
+
+    });
+
+
+    $("#formDatos").submit(e => {
+
+        e.preventDefault();
+
+        var data = new FormData();
+
+        data.append('documento', $("#documento").val());
+        data.append('nit', $("#nit").val());
+        data.append('nombre_perfil', $("#nombre").val());
+        data.append('apellido_perfil', $("#apellido").val());
+        data.append('correio_perfil', $("#correo").val());
+        data.append('telefono_perfil', $("#telefono").val());
+        data.append('fecha_nacimiento', $("#fecha_nacimiento").val());
+
+        var sexos = document.getElementById("sexo");
+        var sexo = sexos.options[sexos.selectedIndex].text;
+        data.append('sexo', sexo);
+
+        // Archivo
+        var file = $('#foto')[0].files[0];
+        if (file) {
+            data.append('foto', file);
+        }
+
+        data.append('padre', $("#padre").val());
+        data.append('madre', $("#madre").val());
+        data.append('peso', $("#peso").val());
+        data.append('raza', $("#raza").val());
+        data.append('estado', $("#estado").val());
+
+        var fincas = document.getElementById("fincas");
+        var finca = fincas.options[fincas.selectedIndex].value;
+        var textoFincaSeleccionado = $('#fincas option:selected').text();
+        data.append('nombrefinca', textoFincaSeleccionado);
+        data.append('finca', finca);
+        data.append('opcion', opcion);
+        data.append('idEnvio', idEnvio);
+
+        $.ajax({
+
+            url: "php/procesos/registro_animal.php",
+            type: "POST",
+            data: data,
+            contentType: false,
+            processData: false,
+            async: false,
+
+            success: function(res) {
+
+                console.log(res);
+
+                if (!res.error) {
+
+                    var dato = JSON.parse(res);
+
+                    if (dato.result == "correcto") {
+
+                        Swal.fire({
+
+                            position: 'center',
+
+                            icon: 'success',
+
+                            title: 'El Animal se Registro Correctamente',
+
+                            showConfirmButton: false,
+
+                            timer: 1500
+
+                        }).then(function() {
+
+                            tablausuarios.ajax.reload(null, false);
+
+                            opcion = "";
+
+                            $("#form_usuario").trigger("reset");
+
+                            $('#modalCRUD').modal('hide');
+
+                        });
+
+                    } else if (dato.result == "no_user") {
+
+                        Swal.fire({
+
+                            icon: 'warning',
+
+                            title: 'NO Se pudo Crear el Registro',
+
+                            showConfirmButton: false,
+
+                            timer: 1500
+
+                        }).then(function() {
+
+                            tablausuarios.ajax.reload(null, false);
+
+                        });
+
+                        return;
+
+                    } else if (dato.result == "error") {
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ocurrio un Error al Registrar los Datos',
+                            showConfirmButton: false,
+                            timer: 1500
+
+                        }).then(function() {
+
+                            tablaclientes.ajax.reload(null, false);
+                            $("#form_usuario").trigger("reset");
+                            $('#modalCRUD').modal('hide');
+
+                        });
+
+                        return;
+
+                    } else if (dato.result == "incorrecto") {
+
+                        Swal.fire({
+                            icon: 'warning',
+                            title: dato.mensaje,
+                            showConfirmButton: false,
+                            timer: 1500
+
+                        }).then(function() {
+
+                            tablaclientes.ajax.reload(null, false);
+                            $("#form_usuario").trigger("reset");
+                            $('#modalCRUD').modal('hide');
+                        });
+
+                        return;
+
+                    } else {
+
+                        $("#form_usuario").trigger("reset");
+
+                    }
+
+                } else {
+
+                    Swal.fire({
+
+                        icon: 'error',
+
+                        title: 'ERROR al Crear la Peticion',
+
+                        showConfirmButton: false,
+
+                        timer: 1500
+
+                    }).then(function() {
+
+                        tablausuarios.ajax.reload(null, false);
+
+                        opcion = "";
+
+                        $("#form_usuario").trigger("reset");
+
+                    });
+
+                }
+
+
+
+            }
+
+        });
+
+
+
+
+
+    });
+
+
 
 })
 

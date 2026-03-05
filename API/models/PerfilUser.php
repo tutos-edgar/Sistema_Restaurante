@@ -9,7 +9,7 @@ class PerfilUser {
     private $table = "perfiles_usuarios";
     private $funcionGeneral;
 
-    public $id_perfil_usuario, $id_usuario, $nombre_perfil, $apellido_perfil, $email_perfil, $telefono_perfil, $documento, $nit;
+    public $id_perfil_usuario, $id_usuario, $nombre_perfil, $apellido_perfil, $sexo, $email_perfil, $telefono_perfil, $documento, $nit, $direccion, $estado;
     public $foto_perfil, $bio_perfil;
     public $fecha_nacimiento, $happy_birthday;    
     public $token_recuperacion, $fecha_token_recuperacion;
@@ -42,10 +42,10 @@ class PerfilUser {
     {
 
         try{
-           
-            $query = "SELECT pu.id_perfil_usuario, documento, nombre_perfil, apellido_perfil, email_perfil, telefono_perfil, foto_perfil, nit, bio_perfil, fecha_nacimiento, 
-            pu.id_estado_perfil, epu.nombre_estado, ru.nombre_rol 
-            FROM " . $this->table ." pu INNER JOIN estados_perfil_usuario epu ON pu.id_estado_perfil = epu.id_estado_perfil 
+
+            $query = "SELECT pu.id_perfil_usuario, documento, nombre_perfil, apellido_perfil, email_perfil, telefono_perfil, foto_perfil, nit, sexo, bio_perfil, fecha_nacimiento, 
+            pu.id_estado_perfil, epu.nombre_estado, ru.nombre_rol, direccion_perfil 
+            FROM " . $this->table ." pu INNER JOIN estados_perfil_usuario epu ON pu.id_estado_perfil = epu.id_estado_perfil
             LEFT JOIN usuarios u ON u.id_perfil_usuario = pu.id_perfil_usuario
             LEFT JOIN roles_usuarios ru ON ru.id_rol = u.id_rol";   
                    
@@ -61,8 +61,9 @@ class PerfilUser {
            
             foreach ($datos as &$fila) {
                 $idusuario = $fila['id_perfil_usuario'];
-                $rol =  $fila['nombre_rol']; //"ADMINISTRADOR";
-
+                $rol =  "ADMINISTRADOR"; //$fila['nombre_rol'];
+                $estado = $fila['nombre_estado'];
+                $idEstado = $fila['id_estado_perfil'];
                 $fila['foto_usuario'] = $codigoBarrasURL . str_replace(' ', '', $fila['foto_usuario']);
 
                 if(strtoupper($rol) == "ADMINISTRADOR"){
@@ -82,6 +83,24 @@ class PerfilUser {
                     $fila['botones'] = '<span class="badge bg-secondary">Sin Rol</span>';
                 }
             
+
+                if ($estado !== null && $idEstado !== null) {
+                    // Si tiene estado, mostramos un botón
+                    if(strtoupper($estado) == "ACTIVO"){
+                        // $fila['btnEstadoPersona'] = '<button data-id="' . $idusuario . '" class="btn btn-sm btn-success btnEstadoPersona" id="btnEstadoPersona" data-bs-toggle="modal" data-bs-target="#modalCambiarEstado">
+                        //                         ' . htmlspecialchars($estado) . '
+                        //                     </button>';
+                        $fila['btnEstadoPersona'] = '<span class="badge bg-success">'.$estado.'</span>';
+                    }else{
+                        // $fila['btnEstadoPersona'] = '<button data-id="' . $idusuario . '" class="btn btn-sm btn-info btnEstadoPersona" id="btnEstadoPersona" data-bs-toggle="modal" data-bs-target="#modalCambiarEstado">
+                        //                         ' . htmlspecialchars($estado) . '
+                        //                     </button>';
+                        $fila['btnEstadoPersona'] = '<span class="badge bg-warning">'.$estado.'</span>';
+                    }
+                } else {
+                    // Si no tiene estado, mostramos una etiqueta
+                    $fila['btnEstadoPersona'] = '<span class="badge bg-secondary">Sin estado</span>';
+                }
             }
 
             // $filtrados = array_map(function($row) {
@@ -331,7 +350,7 @@ class PerfilUser {
 
     public function CrearPerfil(PerfilUser $perfil)
     {
-
+        $this->conn->beginTransaction();
         try {
 
             $token_recuperacion =  $this->encriptado->cifrar($this->funcionGeneral->obtenerTokenSeguro());
@@ -340,12 +359,13 @@ class PerfilUser {
             }
         
             $perfil->rutaFotousuario = $this->tempRuta . trim($perfil->documento).".png";
-            $query = "INSERT INTO " . $this->table . " (documento, nombre_perfil, apellido_perfil, email_perfil, telefono_perfil, foto_perfil, nit, bio_perfil, fecha_nacimiento, happy_birthday, token_recuperacion) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $query = "INSERT INTO " . $this->table . " (documento, nombre_perfil, apellido_perfil, email_perfil, telefono_perfil, sexo, foto_perfil, nit, bio_perfil, fecha_nacimiento, happy_birthday, token_recuperacion, direccion_perfil) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt  = $this->conn->prepare($query);
             $stmt->execute([                
                 strtoupper($perfil->documento),
                 strtoupper($perfil->nombre_perfil),
-                strtoupper($perfil->apellido_perfil),               
+                strtoupper($perfil->apellido_perfil), 
+                strtoupper($perfil->sexo),              
                 $perfil->email_perfil,
                 $perfil->telefono_perfil,
                 $perfil->foto_perfil,
@@ -353,10 +373,11 @@ class PerfilUser {
                 $perfil->bio_perfil,
                 $perfil->fecha_nacimiento,
                 $perfil->happy_birthday,
-                $token_recuperacion
-               
+                $token_recuperacion,
+                $perfil->direccion              
             ]);
 
+            $this->conn->commit();
             if ($stmt->rowCount() > 0) {
                 // $this->funcionGeneral->crearFotos($this->tempRuta, $perfil->foto_perfil, $perfil->nombre_perfil);
                 return ["success" => true];
@@ -365,6 +386,7 @@ class PerfilUser {
             }
 
         } catch (PDOException $e) {
+            $this->conn->rollback();
             $rutaImagen = __DIR__ . "/../" .$this->tempRuta.$perfil->documento.".png";
             // Validar si el archivo existe antes de borrarlo
             if (file_exists($rutaImagen)) {
@@ -372,6 +394,7 @@ class PerfilUser {
             } 
            return ["success" => false,  "error" => true, "mensaje" => $this->funcionGeneral->validarCodigoDeError($e->getCode(), $e->getMessage())];
         } catch (Exception $e) {
+            $this->conn->rollback();
             // $rutaImagen = __DIR__ . "/../" .$this->tempRuta.$perfil->nombre_usuario.".png";
             // Validar si el archivo existe antes de borrarlo
             // if (file_exists($rutaImagen)) {

@@ -2,7 +2,7 @@
 
         <!-- DASHBOARD -->
         <!-- <a href="#" onclick="mostrar('dashboard')">📊 Dashboard</a> -->
-        <a href="#" onclick="showSection('dashboard')"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="index.php"><i class="bi bi-speedometer2"></i> Dashboard</a>
 
         <!-- USUARIOS CON SUBMENU -->
         <a data-bs-toggle="collapse" href="#submenuUsuarios" role="button" aria-expanded="false">

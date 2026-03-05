@@ -12,15 +12,15 @@ function mostrar(id) {
 }
 
 // PREVISUALIZAR FOTO
-document.getElementById("fotoInput").addEventListener("change", function(e) {
-    const reader = new FileReader();
-    reader.onload = function() {
-        document.getElementById("fotoPreview").src = reader.result;
-    }
-    if (e.target.files[0]) {
-        reader.readAsDataURL(e.target.files[0]);
-    }
-});
+// document.getElementById("fotoInput").addEventListener("change", function(e) {
+//     const reader = new FileReader();
+//     reader.onload = function() {
+//         document.getElementById("fotoPreview").src = reader.result;
+//     }
+//     if (e.target.files[0]) {
+//         reader.readAsDataURL(e.target.files[0]);
+//     }
+// });
 
 
 // SUBMENU CONFIGURACION FUNCIONAL
