@@ -47,7 +47,8 @@ try{
     $objModelo->telefono_perfil = (isset($datosRecibidos['telefono_perfil'])) ?  $datosRecibidos['telefono_perfil'] : '';
     $objModelo->nit = (isset($datosRecibidos['nit'])) ?  $datosRecibidos['nit'] : '';
     $objModelo->documento = (isset($datosRecibidos['documento'])) ?  $datosRecibidos['documento'] : '';
-    
+     $objModelo->estado = (isset($datosRecibidos['estado'])) ?  $datosRecibidos['estado'] : '';
+      $objModelo->direccion = (isset($datosRecibidos['direccion'])) ?  $datosRecibidos['direccion'] : '';
     // $objModelo->alias_usuario = (isset($datosRecibidos['alias'])) ?  $datosRecibidos['alias'] : '';
     // $objModelo->pass_usuario = (isset($datosRecibidos['password'])) ?  $datosRecibidos['password'] : '';
     // $objModelo->pass_new = (isset($datosRecibidos['passwordnew'])) ?  $datosRecibidos['passwordnew'] : '';
